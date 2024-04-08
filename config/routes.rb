@@ -9,6 +9,12 @@ Rails.application.routes.draw do
           post :confirm
         end
       end
+
+      resources :users, only: %i[status], format: :json do
+        collection do
+          get :status
+        end
+      end
     end
   end
 end

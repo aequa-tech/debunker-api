@@ -2,6 +2,7 @@
 
 class User < ApplicationRecord
   has_secure_password
+  has_many :tokens, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true
 
@@ -12,6 +13,16 @@ class User < ApplicationRecord
                       'updated_at', 'confirmed_at', 'confirmation_sent_at')
   end
 
+  def generate_call_tokens(count)
+    count.times do
+      token_created = false
+      until token_created
+        token = SecureRandom.hex(16)
+        token_created = tokens.create(value: token)
+      end
+    end
+  end
+
   def confirm
     if confirmed_at
       errors.add(:base, :already_confirmed)
@@ -20,7 +31,10 @@ class User < ApplicationRecord
 
     store_confirmation
     generate_api_key
-    save
+    saved = save
+    generate_free_call_tokens if saved
+
+    saved
   end
 
   private
@@ -31,7 +45,12 @@ class User < ApplicationRecord
   end
 
   def generate_api_key
-    self.api_key = SecureRandom.hex(10)
+    self.api_key = SecureRandom.hex(16)
+  end
+
+  def generate_free_call_tokens
+    free = ENV.fetch('FREE_TOKENS_REGISTRATION').to_i
+    generate_call_tokens(free)
   end
 
   def store_confirmation

@@ -10,6 +10,7 @@ it:
           confirm:
             invalid_token: "Token di attivazione non valido"
             generic: "Errore durante l'attivazione dell'utente. %{errors}"
+          unauthorized: "Chiave API non valida"
   activerecord:
     errors:
       models:
@@ -25,8 +26,18 @@ it:
             password_confirmation:
               blank: "non può essere vuota"
               match: "Password e Conferma Password non corrispondono"
+        token:
+          attributes:
+            value:
+              blank: "non può essere vuoto"
+              taken: "esiste già"
     models:
-      user: "Utente"
+      user:
+        one: "Utente"
+        other: "Utenti"
+      token:
+        one: "Token"
+        other: "Tokens"
     attributes:
       user:
         api_key: "Chiave API"
@@ -34,3 +45,9 @@ it:
         email: "Email"
         password: "Password"
         password_confirmation: "Conferma Password"
+        confirmed_at: "Attivato il"
+        created_at: "Creato il"
+        updated_at: "Aggiornato il"
+      token:
+        user: "Utente"
+        value: "Valore"
