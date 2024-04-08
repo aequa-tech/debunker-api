@@ -1,0 +1,36 @@
+it:
+  api:
+    messages:
+      user:
+        success:
+          create: "Utente creato con successo. verrà inviata una email di conferma."
+          confirm: "Utente attivato con successo."
+        error:
+          create: "Errore durante la creazione dell'utente. %{errors}"
+          confirm:
+            invalid_token: "Token di attivazione non valido"
+            generic: "Errore durante l'attivazione dell'utente. %{errors}"
+  activerecord:
+    errors:
+      models:
+        user:
+          already_confirmed: "Utente già attivato"
+          attributes:
+            email:
+              taken: "già in uso"
+              invalid: "non valida"
+            password:
+              blank: "non può essere vuota"
+              too_short: "troppo corta"
+            password_confirmation:
+              blank: "non può essere vuota"
+              match: "Password e Conferma Password non corrispondono"
+    models:
+      user: "Utente"
+    attributes:
+      user:
+        api_key: "Chiave API"
+        name: "Nome"
+        email: "Email"
+        password: "Password"
+        password_confirmation: "Conferma Password"
