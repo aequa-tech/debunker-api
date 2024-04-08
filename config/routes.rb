@@ -15,6 +15,8 @@ Rails.application.routes.draw do
           get :status
         end
       end
+
+      resources :debunk, only: %i[create], format: :json
     end
   end
 end

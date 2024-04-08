@@ -1,6 +1,10 @@
 it:
   api:
     messages:
+      debunk:
+        error:
+          no_tokens: "Nessun token disponibile per interrogare il servizio"
+          missing_params_url: "Parametro 'url' mancante"
       user:
         success:
           create: "Utente creato con successo. verrà inviata una email di conferma."
