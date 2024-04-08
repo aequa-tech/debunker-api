@@ -7,7 +7,7 @@ module Api
         @user = User.new(user_params)
         unless @user.save
           render json: { error: I18n.t('api.messages.user.error.create', errors: @user.errors.full_messages.join(', ')) },
-                status: :unprocessable_entity
+                 status: :unprocessable_entity
           return
         end
 
@@ -23,8 +23,8 @@ module Api
 
         unless @user.confirm
           render json: { error: I18n.t('api.messages.user.error.confirm.generic',
-                                      errors: @user.errors.full_messages.join(', ')) },
-                status: :unprocessable_entity
+                                       errors: @user.errors.full_messages.join(', ')) },
+                 status: :unprocessable_entity
           return
         end
 
@@ -36,13 +36,6 @@ module Api
 
       def user_params
         params.permit(:name, :email, :password, :password_confirmation)
-      end
-
-      def include_for_html
-        return unless request.format.html?
-
-        self.class.include ActionView::Layouts
-        self.class.include ActionController::Rendering
       end
     end
   end
