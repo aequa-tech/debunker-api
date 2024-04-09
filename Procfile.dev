@@ -1,4 +1,4 @@
-web: bundle exec rails s -p 3001
+web: env RUBY_DEBUG_OPEN=true bundle exec bin/rails server -p 3001
 mailhog: mailhog
 redis: redis-server
 sidekiq: bundle exec sidekiq -C config/sidekiq.yml
