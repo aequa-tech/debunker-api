@@ -5,6 +5,7 @@ class User < ApplicationRecord
   has_many :tokens, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true
+  validates :name, presence: true
 
   before_create :generate_confirmation_token
 
