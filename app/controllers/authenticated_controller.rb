@@ -6,12 +6,14 @@ class AuthenticatedController < ApplicationController
   private
 
   def authenticate_user!
-    api_key = request.headers['X-Api-Key']
-    if api_key.blank?
+    api_key = request.headers['X-API-Key']
+    api_secret = request.headers['X-API-Secret']
+
+    unless ApiKey.authenticate!(api_key, api_secret)
       return render json: { error: I18n.t('api.messages.user.error.unauthorized') }, status: :unauthorized
     end
 
-    @user = User.find_by(api_key:)
+    @user = ApiKey.find_by(access_token: api_key).user
     render json: { error: I18n.t('api.messages.user.error.unauthorized') }, status: :unauthorized if @user.blank?
   end
 end
