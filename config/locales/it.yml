@@ -2,9 +2,10 @@ it:
   api:
     messages:
       debunk:
+        queued: "La richiesta è stata accettata e verrà processata."
         error:
           no_tokens: "Nessun token disponibile per interrogare il servizio"
-          missing_params_url: "Parametro 'url' mancante"
+          missing_params: "Parametri mancanti: %{params}"
       user:
         success:
           create: "Utente creato con successo. verrà inviata una email di conferma."

@@ -6,7 +6,7 @@ module Api
       def status
         render json: {
           user: @user.info_attributes.except('api_key'),
-          available_tokens: @user.tokens.count
+          available_tokens: @user.available_tokens.count
         }, status: :ok
       end
     end
