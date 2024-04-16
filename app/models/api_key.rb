@@ -2,10 +2,10 @@
 
 class ApiKey < ActiveRecord::Base
   before_create :encode_secret
-  before_create :expire_all!
-  after_update :expire!
+  after_create :generate_free_call_tokens
 
   belongs_to :user
+  has_many :tokens, dependent: :destroy
 
   validates :access_token, presence: true, uniqueness: true
   validates :secret_token, presence: true
@@ -50,7 +50,26 @@ class ApiKey < ActiveRecord::Base
     expired_at.present?
   end
 
+  def available_tokens
+    tokens.available
+  end
+
   private
+
+  def generate_call_tokens(count)
+    count.times do
+      token_created = false
+      until token_created
+        token = SecureRandom.hex(16)
+        token_created = tokens.create(value: token)
+      end
+    end
+  end
+
+  def generate_free_call_tokens
+    free = ENV.fetch('FREE_TOKENS_REGISTRATION').to_i
+    generate_call_tokens(free)
+  end
 
   def expire_all!
     self.class.where(user_id:).update_all(expired_at: Time.now)
