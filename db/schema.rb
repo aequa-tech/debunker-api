@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_09_142843) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_18_064142) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -29,9 +29,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_09_142843) do
     t.bigint "api_key_id", null: false
     t.integer "retries", default: 0
     t.string "used_on"
-    t.datetime "committed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "last_payload", default: ""
+    t.integer "last_status", default: 0
     t.index ["api_key_id"], name: "index_tokens_on_api_key_id"
   end
 

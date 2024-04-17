@@ -1,33 +1,44 @@
-# Files in the config/locales directory are used for internationalization
-# and are automatically loaded by Rails. If you want to use locales other
-# than English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# The following keys must be escaped otherwise they will not be retrieved by
-# the default I18n backend:
-#
-# true, false, on, off, yes, no
-#
-# Instead, surround them with single quotes.
-#
-# en:
-#   "true": "foo"
-#
-# To learn more, please read the Rails Internationalization guide
-# available at https://guides.rubyonrails.org/i18n.html.
-
-en:
-  hello: "Hello world"
+it:
+  api:
+    messages:
+      debunk:
+        queued: "The request has been accepted and will be processed."
+        error:
+          no_tokens: "No tokens available to query the service"
+          missing_params: "Missing parameters: %{params}"
+          protocol: "The provided link must start with http:// or https://"
+      api_key:
+        error:
+          unauthorized: "Invalid API key"
+  activerecord:
+    models:
+      user:
+        one: "User"
+        other: "Users"
+      token:
+        one: "Token"
+        other: "Tokens"
+      api_key:
+        one: "API Key"
+        other: "API Keys"
+    attributes:
+      api_key:
+        access_token: "Access Token"
+        secret_token: "Secret"
+        expired_at: "Revoked at"
+        created_at: "Created at"
+      user:
+        name: "Name"
+        email: "Email"
+        password: "Password"
+        password_confirmation: "Password Confirmation"
+        confirmed_at: "Activated at"
+        created_at: "Created at"
+        updated_at: "Updated at"
+      token:
+        user: "User"
+        value: "Value"
+        api_key: "API Key"
+        last_payload: "Last payload"
+        last_status: "Last status"
+        used_on: "Used for address"

@@ -24,13 +24,18 @@ module DebunkerAequatech
 
         final_payload['scrape'] = payload['result']
         self.request_id = payload['result']['request_id']
+
         METRICS.each do |metric|
           final_payload[metric] = JSON.parse(send(metric, request_id))['result']
         end
 
-        [final_payload, 200]
+        [final_payload, final_payload['scrape']['status']]
       rescue RestClient::ExceptionWithResponse => e
-        [JSON.parse(e.response.body), e.response.code]
+        [{ message: e.message }, e.http_code]
+      rescue JSON::ParserError
+        [{ message: 'Invalid JSON response' }, 500]
+      rescue RestClient::Exceptions::ReadTimeout
+        [{ message: 'Read timeout' }, 408]
       end
 
       private

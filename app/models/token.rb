@@ -6,14 +6,20 @@ class Token < ApplicationRecord
   scope :available, -> { where(used_on: nil) }
 
   def free!
-    update_columns(used_on: nil, retries: 0)
+    update_columns(used_on: nil, retries: 0, last_payload: nil, last_status: nil)
   end
 
   def occupy!(url)
     update_columns(used_on: url, retries: 0)
   end
 
-  def commit!
-    update_columns(committed_at: Time.now)
+  def temporary_response!(payload, status)
+    payload = payload.to_json if payload.is_a?(Hash)
+    status = status.to_i if status.is_a?(String)
+    update_columns(last_payload: payload, last_status: status)
+  end
+
+  def try!
+    update_columns(retries: retries + 1)
   end
 end
