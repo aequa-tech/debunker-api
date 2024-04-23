@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DebunkerAequatech
+module DebunkerAssistant
   module V1
     module Middleware
       # This class is a middleware that adds the Content-Length and RateLimit headers to the response.

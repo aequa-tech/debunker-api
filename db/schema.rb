@@ -31,8 +31,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_064142) do
     t.string "used_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "last_payload", default: ""
-    t.integer "last_status", default: 0
+    t.text "support_response_object", default: ""
+    t.integer "success", default: 0
     t.index ["api_key_id"], name: "index_tokens_on_api_key_id"
   end
 

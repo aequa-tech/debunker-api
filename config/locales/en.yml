@@ -1,4 +1,4 @@
-it:
+en:
   api:
     messages:
       debunk:
@@ -9,8 +9,34 @@ it:
           protocol: "The provided link must start with http:// or https://"
       api_key:
         error:
+          missings: "Missing Api / Secret keys"
           too_many_requests: "Too many requests made with this API key or IP address"
           unauthorized: "Invalid API key"
+      locale:
+        error:
+          invalid: "Unsupported language"
+
+  activemodel:
+    errors:
+      models:
+        debunker_assistant/v1/api/scrape_payload:
+          analysis_type_blank: "Analysis type can't be blank"
+          analysis_type_invalid: "Analysis type is not in a valid format"
+          content_language_length: "Content language must be 2 characters long"
+          content_language_invalid: "Content language is not supported"
+          evaluation_or_explanation: "At least one of 'evaluation' and 'explanation' must be present"
+          evaluation_callback_blank: "Evaluation callback address can't be blank"
+          evaluation_callback_invalid: "Evaluation callback address is not valid"
+          explanation_callback_blank: "Explanation callback address can't be blank"
+          explanation_callback_invalid: "Explanation callback address is not valid"
+          explanation_explanation_type_blank: "Explanation type can't be blank"
+          invalid_json: "The payload is not a valid JSON"
+          invalid_url: "The provided analysis URL is not valid"
+          max_chars_invalid: "The value of 'max_chars' is not valid"
+          max_retries_invalid: "The value of 'max_retries' is not valid"
+          retry_invalid: "The value of 'retry' is not valid"
+          timeout_invalid: "The value of 'timeout' is not valid"
+          url_blank: "The analysis URL can't be blank"
   activerecord:
     models:
       user:
@@ -40,6 +66,6 @@ it:
         user: "User"
         value: "Value"
         api_key: "API Key"
-        last_payload: "Last payload"
-        last_status: "Last status"
+        support_response_object: "Last payload"
+        success: "Positive outcome"
         used_on: "Used for address"

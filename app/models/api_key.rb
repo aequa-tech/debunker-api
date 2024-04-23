@@ -20,7 +20,7 @@ class ApiKey < ActiveRecord::Base
   def self.authenticate!(access_token, secret)
     api_key = find_by(access_token:)
     return false if api_key.nil?
-    return false if api_key.user_id.nil?
+    return false if api_key.user.blank?
     return false if api_key.expired_at.present?
 
     decoded_secret = JWT.decode(api_key.secret_token, usk(access_token, api_key.user)).first

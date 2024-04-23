@@ -37,12 +37,12 @@ module DebunkerApi
     # to the API. We are going to throttle the requests to 5 requests per minute (initializers/rack_attack.rb).
     config.middleware.use Rack::Attack
     # We are going to add the ResponseHeaders middleware to add the Content-Length and RateLimit headers to responses
-    # and remove all headers except Content-Type (lib/debunker_aequatech/v1/middleware/response_headers_middleware.rb).
+    # and remove all headers except Content-Type (lib/debunker_assistant/v1/middleware/response_headers.rb).
     # it is important to add this middleware before the ActionDispatch::HostAuthorization middleware to avoid
     # other headers being added after this middleware.
     config.middleware.insert_before(
       ActionDispatch::HostAuthorization,
-      DebunkerAequatech::V1::Middleware::ResponseHeaders
+      DebunkerAssistant::V1::Middleware::ResponseHeaders
     )
   end
 end

@@ -3,20 +3,15 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      # resources :registrations, only: %i[create confirm], format: :json do
-      #   collection do
-      #     post :create
-      #     post :confirm
-      #   end
-      # end
-
-      resources :users, only: %i[status], format: :json do
-        collection do
-          get :status
-        end
+      namespace :users do
+        get :status,
+            format: :json,
+            to: '/debunker_assistant/v1/api/users#status'
       end
 
-      resources :debunk, only: %i[create], format: :json
+      post :scrape,
+           format: :json,
+           to: '/debunker_assistant/v1/api/scrape#create'
     end
   end
 end
