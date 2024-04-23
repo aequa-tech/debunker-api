@@ -22,11 +22,27 @@ module DebunkerApi
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    Dir.glob("#{Rails.root}/lib/**/*.rb").each do |file|
+      require file
+    end
+
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
     config.i18n.default_locale = :it
     config.i18n.available_locales = %i[it en]
+
+    # We are going to use the Rack::Attack middleware to throttle the requests
+    # to the API. We are going to throttle the requests to 5 requests per minute (initializers/rack_attack.rb).
+    config.middleware.use Rack::Attack
+    # We are going to add the ResponseHeaders middleware to add the Content-Length and RateLimit headers to responses
+    # and remove all headers except Content-Type (lib/debunker_aequatech/v1/middleware/response_headers_middleware.rb).
+    # it is important to add this middleware before the ActionDispatch::HostAuthorization middleware to avoid
+    # other headers being added after this middleware.
+    config.middleware.insert_before(
+      ActionDispatch::HostAuthorization,
+      DebunkerAequatech::V1::Middleware::ResponseHeaders
+    )
   end
 end

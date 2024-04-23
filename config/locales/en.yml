@@ -9,6 +9,7 @@ it:
           protocol: "The provided link must start with http:// or https://"
       api_key:
         error:
+          too_many_requests: "Too many requests made with this API key or IP address"
           unauthorized: "Invalid API key"
   activerecord:
     models:
