@@ -18,7 +18,7 @@ module DebunkerAssistant
         private
 
         def prepare_context
-          context.url = context.payload.url
+          context.url = ::DebunkerAssistant::V1::Api::ScrapePayload.new(context.payload).url
           context.token = Token.find_by(value: context.token_value)
         end
 

@@ -1,7 +1,13 @@
 en:
   api:
     messages:
-      debunk:
+      errors:
+        errno/econnrefused: "The service is not available"
+        fatal: "A fatal error occurred."
+        json/parser_error: "Invalid JSON"
+        rest_client/exception_with_response: "The service responded with an error"
+        rest_client/exceptions/read_timeout: "The service did not respond in time"
+      scrape:
         queued: "The request has been accepted and will be processed."
         error:
           no_tokens: "No tokens available to query the service"

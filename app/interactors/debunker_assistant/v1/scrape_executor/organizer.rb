@@ -6,7 +6,7 @@ module DebunkerAssistant
       class Organizer
         include Interactor::Organizer
 
-        organize ScrapeValidPayload, Execute
+        organize ValidPayload, Execute
       end
     end
   end

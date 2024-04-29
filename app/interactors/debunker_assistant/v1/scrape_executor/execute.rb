@@ -9,9 +9,13 @@ module DebunkerAssistant
         before :prepare_context
 
         def call
-          return context.token.free! unless retry?
-
           context.token.try!
+
+          unless retry?
+            callback rescue nil # rubocop:disable Style/RescueModifier
+            return context.token.free!
+          end
+
           return fail_with_retry! unless perform
           return fail_with_retry! unless callback
 
@@ -26,7 +30,7 @@ module DebunkerAssistant
         end
 
         def retry?
-          context.token.retries < context.max_retries
+          context.token.retries < (context.max_retries + 1)
         end
 
         def fail_with_retry!

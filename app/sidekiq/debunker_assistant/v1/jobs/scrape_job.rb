@@ -10,7 +10,7 @@ module DebunkerAssistant
           result = ::DebunkerAssistant::V1::ScrapeExecutor::Organizer.call(payload:, token_value:)
           return if result.success?
 
-          requeue(payload, token_value) if result.context.retry_perform
+          requeue(payload, token_value) if result.retry_perform
         end
 
         private

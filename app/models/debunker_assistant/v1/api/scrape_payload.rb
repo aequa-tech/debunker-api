@@ -30,14 +30,7 @@ module DebunkerAssistant
           self.url = '' if url.blank?
           self.analysis_types = {} if analysis_types.blank?
           self.content_language = I18n.default_locale.to_s if content_language.blank?
-          set_missing_analysis_types
           set_missing_values_from_env
-        end
-
-        def set_missing_analysis_types
-          %i[evaluation explanation].each do |key|
-            analysis_types[key] = {} if analysis_types[key].blank?
-          end
         end
 
         def set_missing_values_from_env
@@ -49,6 +42,8 @@ module DebunkerAssistant
         def unescape_urls
           self.url = CGI.unescape(url.to_s)
           %i[evaluation explanation].each do |key|
+            next if analysis_types[key].blank?
+
             analysis_types[key][:callback_url] = CGI.unescape(analysis_types[key][:callback_url].to_s)
           end
         end
@@ -115,12 +110,14 @@ module DebunkerAssistant
         end
 
         def evaluation_or_explanation_presence
+          return if analysis_types.blank?
           return if analysis_types[:evaluation].present? || analysis_types[:explanation].present?
 
           errors.add(:base, :evaluation_or_explanation)
         end
 
         def evaluation_validation
+          return if analysis_types.blank?
           return if analysis_types[:evaluation].blank?
           return errors.add(:base, :evaluation_callback_blank) if analysis_types[:evaluation][:callback_url].blank?
           return if valid_uri?(analysis_types[:evaluation][:callback_url])
@@ -129,6 +126,7 @@ module DebunkerAssistant
         end
 
         def explanation_validation
+          return if analysis_types.blank?
           return if analysis_types[:explanation].blank?
           return errors.add(:base, :explanation_callback_blank) if analysis_types[:explanation][:callback_url].blank?
 

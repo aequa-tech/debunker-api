@@ -12,7 +12,7 @@ module DebunkerAssistant
         def call
           return if api_key.available_tokens.count.positive?
 
-          context.fail!(message: I18n.t('api.messages.debunk.error.no_tokens', status: :forbidden))
+          context.fail!(message: I18n.t('api.messages.scrape.error.no_tokens', status: :forbidden))
         end
 
         private
@@ -22,7 +22,7 @@ module DebunkerAssistant
         end
 
         def api_key
-          ApiKey.find_by(key: context.key)
+          ApiKey.find_by(access_token: context.key)
         end
       end
     end

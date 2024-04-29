@@ -11,8 +11,8 @@ module DebunkerAssistant
 
         def call
           ::DebunkerAssistant::V1::Jobs::ScrapeJob.perform_async(context.payload, context.token.value)
-        rescue StandardError => e
-          context.fail!(message: e.message, status: :internal_server_error)
+        rescue StandardError
+          context.fail!(message: I18n.t('api.messages.errors.fatal'), status: :internal_server_error)
         end
 
         private
