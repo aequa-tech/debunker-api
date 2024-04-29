@@ -7,9 +7,15 @@ module DebunkerAssistant
       class UsersController < RequestController
         def status
           render json: {
-            user: @user.info_attributes.except('api_key'),
-            available_tokens: @api_key.available_tokens.count
+            user: api_key.user.info_attributes,
+            available_tokens: api_key.available_tokens.count
           }, status: :ok
+        end
+
+        private
+
+        def api_key
+          @api_key ||= ApiKey.find_by(access_token: request.headers['X-API-Key'])
         end
       end
     end

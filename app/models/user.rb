@@ -11,7 +11,7 @@ class User < ApplicationRecord
   after_initialize :set_default_role, if: :new_record?
 
   def info_attributes
-    attributes.slice('name', 'email', 'api_key', 'role')
+    attributes.slice('name', 'email', 'role')
   end
 
   def active_api_keys
