@@ -1,0 +1,1080 @@
+openapi: "3.1.0"
+
+info:
+  version: "0.2.0"
+  title: test.test
+  termsOfService: 'https://test.test/terms/'
+  contact:
+    email: info@aequa-tech.com
+    url: 'https://aequa-tech.com/contact'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  x-logo:
+    url: 'https://aequa-tech.com/wp-content/uploads/2023/11/aequa-logo.svg'
+  description: |
+    Debunker Api description
+
+servers:
+  - url: "https://test.test/api/v1"
+
+externalDocs:
+  description: Find the full documentation
+  url: 'ourexternaldoc.org'
+
+paths:
+  /users/status:
+    get:
+      security:
+        - apiKey: []
+          apiSecret: []
+      summary: The user's status linked to the provided api and secret keys.
+      description: Returns the status of the user linked to the provided api and secret keys. It also returns the number of tokens available for that key pair
+      parameters:
+        - in: header
+          name: Accept-language
+          required: false
+          schema:
+            $ref: "#/components/schemas/language"
+      responses:
+        "200":
+          description: The user's status linked to the provided api and secret keys.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/user'
+                  available_tokens:
+                    type: number
+                    minimum: 0
+          headers:
+            Content-Type:
+              $ref: "#/components/headers/Content-Type"
+            Content-Length:
+              $ref: "#/components/headers/Content-Length"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Reset:
+              $ref: "#/components/headers/X-RateLimit-Reset"
+
+        "401":
+          $ref: "#/components/responses/unauthorized"
+
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+
+        "500":
+          $ref: "#/components/responses/error"
+
+
+  /scrape:
+    post:
+      security:
+        - apiKey: []
+          apiSecret: []
+      summary: Request for an article analysis
+      description: Description
+      parameters:
+        - in: query
+          name: lang
+          required: false
+          schema:
+            $ref: "#/components/schemas/language"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  $ref: "#/components/schemas/basicUrl"
+                analysisTypes:
+                  $ref: "#/components/schemas/analysisTypes"
+                contentLanguage:
+                  $ref: "#/components/schemas/language"
+                retry:
+                  $ref: "#/components/schemas/retry"
+                maxRetries:
+                  $ref: "#/components/schemas/maxRetries"
+                timeout:
+                  $ref: "#/components/schemas/timeout"
+                maxChars:
+                  $ref: "#/components/schemas/charLimit"
+              required:
+                - url
+                - analysisTypes
+
+      responses:
+        "200":
+          description: The request has been processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/requestResponse"
+          headers:
+            Content-Type:
+              $ref: "#/components/headers/Content-Type"
+            Content-Length:
+              $ref: "#/components/headers/Content-Length"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Reset:
+              $ref: "#/components/headers/X-RateLimit-Reset"
+
+        "400":
+          $ref: '#/components/responses/invalid'
+
+        "401":
+          $ref: "#/components/responses/unauthorized"
+
+        "403":
+          $ref: "#/components/responses/forbidden"
+
+        "429":
+          $ref: "#/components/responses/tooManyRequests"
+
+        "500":
+          $ref: "#/components/responses/error"
+
+webhooks:
+  evaluation:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  $ref: "#/components/schemas/basicUrl"
+                token:
+                  type: string
+                analysisType:
+                  type: string
+                  enum: [evaluation]
+                data:
+                  type: object
+                  # $ref: "#/components/schemas/evaluationPayload"
+
+
+
+  explanation:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  $ref: "#/components/schemas/basicUrl"
+                token:
+                  type: string
+                analysisType:
+                  type: string
+                  enum: [explanation]
+                data:
+                  type: object
+                  # $ref: "#/components/schemas/explanationPayload"
+
+
+
+  # /article-evaluation:
+  #   get:
+  #     summary: an overall evaluation of the article along different dimensions that can be stylistic, semantic, or network-based
+  #     description: "the output of this API call is a json in which outputs are organized in three levels. It is possible to find all dimensions of evaluation (eg: 'informal style')\n
+  #     and all the features that contribute to determine them (eg: the presence of exclamation marks in a title)."
+
+  #     parameters:
+  #       - $ref: "#/components/parameters/myid"
+  #     security:
+  #       - ApiKeyAuth: []
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/articleEvaluation"
+  #         headers:
+  #           X-RateLimit-Limit:
+  #             schema:
+  #               type: integer
+  #             description: Request limit per hour.
+  #           X-RateLimit-Remaining:
+  #             schema:
+  #               type: integer
+  #             description: The number of requests left for the time window.
+  #           X-RateLimit-Reset:
+  #             schema:
+  #               type: string
+  #               format: date-time
+  #             description: The UTC date/time at which the current rate limit window resets.
+
+  #       "400":
+  #         $ref: "#/components/responses/badRequest"
+
+  #       "401":
+  #         $ref: "#/components/responses/unauthorized"
+
+  #       "403":
+  #         $ref: '#/components/responses/forbidden'
+
+
+  #       "404":
+  #         $ref: "#/components/responses/notFound"
+
+  #       "429":
+  #         $ref: "#/components/responses/tooManyRequests"
+
+  #       "500":
+  #         $ref: "#/components/responses/internalServerError"
+
+
+  # # /explanations:
+  #   get:
+  #     summary: summary
+  #     description: description
+
+  #     parameters:
+  #       - $ref: "#/components/parameters/analysisId"
+  #       - $ref: "#/components/parameters/explanationType"
+
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/explanation"
+
+  #         headers:
+  #           X-RateLimit-Limit:
+  #             schema:
+  #               type: integer
+  #             description: Request limit per hour.
+  #           X-RateLimit-Remaining:
+  #             schema:
+  #               type: integer
+  #             description: The number of requests left for the time window.
+  #           X-RateLimit-Reset:
+  #             schema:
+  #               type: string
+  #               format: date-time
+  #             description: The UTC date/time at which the current rate limit window resets.
+
+  #       "400":
+  #         $ref: "#/components/responses/badRequest"
+
+  #       "401":
+  #         $ref: "#/components/responses/unauthorized"
+
+  #       "403":
+  #         $ref: '#/components/responses/forbidden'
+
+
+  #       "404":
+  #         $ref: "#/components/responses/notFound"
+
+  #       "429":
+  #         $ref: "#/components/responses/tooManyRequests"
+
+  #       "500":
+  #         $ref: "#/components/responses/internalServerError"
+
+
+
+
+
+# # webhooks:
+#   '/scrape':
+#     post:
+#       summary: retrieve an article
+#       description: retrieve the title and the body of an article
+#       parameters:
+#         - $ref: "#/components/parameters/inputUrl"
+#         - $ref: "#/components/parameters/myServerUrl"
+#         - $ref: "#/components/parameters/language"
+#         - $ref: "#/components/parameters/retry"
+#         - $ref: "#/components/parameters/maxRetries"
+#         - $ref: "#/components/parameters/timeout"
+#       security:
+#         - ApiKeyAuth: []
+#         - OAuth2: [read]
+
+#       responses:
+#         "200":
+#           description: OK
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: "#/components/schemas/id"
+#           headers:
+#             X-RateLimit-Limit:
+#               schema:
+#                 type: integer
+#               description: Request limit per hour.
+#             X-RateLimit-Remaining:
+#               schema:
+#                 type: integer
+#               description: The number of requests left for the time window.
+#             X-RateLimit-Reset:
+#               schema:
+#                 type: string
+#                 format: date-time
+#               description: The UTC date/time at which the current rate limit window resets.
+
+#         "400":
+#           $ref: "#/components/responses/badRequest"
+
+#         "401":
+#           $ref: "#/components/responses/unauthorized"
+
+#         "403":
+#           $ref: '#/components/responses/forbidden'
+
+
+#         "404":
+#           $ref: "#/components/responses/notFound"
+
+#         "429":
+#           $ref: "#/components/responses/tooManyRequests"
+
+#         "500":
+#           $ref: "#/components/responses/internalServerError"
+
+
+components:
+  headers:
+    Content-Type:
+      schema:
+        type: string
+      description: The content type of the response body
+
+    Content-Length:
+      schema:
+        type: integer
+      description: The content length of the response body (in bytes)
+
+    X-RateLimit-Limit:
+      schema:
+        type: integer
+      description: Request limit per hour.
+    X-RateLimit-Remaining:
+      schema:
+        type: integer
+      description: The number of requests left for the time window.
+    X-RateLimit-Reset:
+      schema:
+        type: string
+        format: date-time
+      description: The time at which the rate limit resets, specified in UTC epoch time (in seconds).
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    apiSecret:
+      type: apiKey
+      in: header
+      name: X-API-Secret
+
+  schemas:
+    user:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          $ref: "#/components/schemas/email"
+        role:
+          type: string
+          enum: [admin, user]
+
+    notValidResponse:
+      type: object
+      properties:
+        message:
+          description: A text message describing the response.
+          type: string
+
+    requestResponse:
+      type: object
+      properties:
+        message:
+          description: A text message describing the response.
+          type: string
+        url:
+          description: The url provided for analysis.
+          type: string
+        token:
+          description: The token used to perform the analysis.
+          type: string
+      required:
+        - message
+
+
+    analysisTypes:
+      type: object
+      minProperties: 1
+      properties:
+        evaluation:
+          $ref: "#/components/schemas/evaluationAnalysis"
+        explanation:
+          $ref: '#/components/schemas/explanationAnalysis'
+
+    evaluationAnalysis:
+      type: object
+      properties:
+        callbackUrl:
+          $ref: '#/components/schemas/basicUrl'
+      required:
+        - callbackUrl
+
+    explanationAnalysis:
+        type: object
+        properties:
+          callbackUrl:
+            $ref: '#/components/schemas/basicUrl'
+          explanationType:
+            $ref: '#/components/schemas/explanationType'
+        required:
+          - callbackUrl
+          - explanationType
+
+    email:
+      type: string
+      format: email
+
+    basicUrl:
+      type: string
+      format: stringUri
+
+    id:
+      type: string
+      description: An unique id used for handling next APIs requests
+
+    language:
+      description: The language of the article that you want to analyze. Actually you can choose between Italian (it) and English (en)
+      type: string
+      enum: [it,en]
+      default: it
+
+    retry:
+      description: Choose if you want to retry the call to the API. Default is false
+      type: boolean
+      default: false
+
+    maxRetries:
+      description: The total number of retries. Default is 2
+      type: integer
+      maximum: 5
+      default: 2
+
+    timeout:
+      description: It sets the timeout of a request to our APIs. It is expressed in seconds. Default is 5
+      type: integer
+      maximum: 20
+      default: 5
+
+    charLimit:
+      description: The limit of charachters of a text to be analyzed.
+      type: integer
+      maximum: 15000
+      default: 10000
+
+    explanationType:
+      name: explanation
+      type: string
+      enum: [affectiveStyle, dangerousStyle]
+
+  responses:
+    invalid:
+      description: The request was invalid or cannot be otherwise served.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/notValidResponse"
+      headers:
+        Content-Type:
+          $ref: "#/components/headers/Content-Type"
+        Content-Length:
+          $ref: "#/components/headers/Content-Length"
+        X-RateLimit-Limit:
+          $ref: "#/components/headers/X-RateLimit-Limit"
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/X-RateLimit-Remaining"
+        X-RateLimit-Reset:
+          $ref: "#/components/headers/X-RateLimit-Reset"
+
+    unauthorized:
+      description: Your request cannot be authenticated.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/notValidResponse"
+      headers:
+        Content-Type:
+          $ref: "#/components/headers/Content-Type"
+        Content-Length:
+          $ref: "#/components/headers/Content-Length"
+        X-RateLimit-Limit:
+          $ref: "#/components/headers/X-RateLimit-Limit"
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/X-RateLimit-Remaining"
+        X-RateLimit-Reset:
+          $ref: "#/components/headers/X-RateLimit-Reset"
+
+    forbidden:
+      description: The request is understood, but it has been refused or access is not allowed.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/notValidResponse"
+      headers:
+        Content-Type:
+          $ref: "#/components/headers/Content-Type"
+        Content-Length:
+          $ref: "#/components/headers/Content-Length"
+        X-RateLimit-Limit:
+          $ref: "#/components/headers/X-RateLimit-Limit"
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/X-RateLimit-Remaining"
+        X-RateLimit-Reset:
+          $ref: "#/components/headers/X-RateLimit-Reset"
+
+    tooManyRequests:
+      description: Too Many Requests. Reached the APIs rate
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/notValidResponse"
+      headers:
+        Content-Type:
+          $ref: "#/components/headers/Content-Type"
+        Content-Length:
+          $ref: "#/components/headers/Content-Length"
+        X-RateLimit-Limit:
+          $ref: "#/components/headers/X-RateLimit-Limit"
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/X-RateLimit-Remaining"
+        X-RateLimit-Reset:
+          $ref: "#/components/headers/X-RateLimit-Reset"
+
+    error:
+      description: There were problems processing the request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/notValidResponse"
+      headers:
+        Content-Type:
+          $ref: "#/components/headers/Content-Type"
+        Content-Length:
+          $ref: "#/components/headers/Content-Length"
+        X-RateLimit-Limit:
+          $ref: "#/components/headers/X-RateLimit-Limit"
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/X-RateLimit-Remaining"
+        X-RateLimit-Reset:
+          $ref: "#/components/headers/X-RateLimit-Reset"
+
+
+  #   categoricalValue:
+  #     type: integer
+  #     format: int32
+  #     description: a categorical representation of a feature
+
+  #   scoreType1:
+  #     type: number
+  #     format: float
+  #     description: a score associated to a feature in the range 0-1
+  #     minimum: 0
+  #     maximum: 1
+
+  #   scoreType2:
+  #     type: number
+  #     format: float
+  #     description: aa score associated to a feature in the range -1-1
+  #     minimum: -1
+  #     maximum: 1
+
+  #   token:
+  #     type: string
+  #     description: a chunck of text that corresponds to a word or a piece of word
+
+
+  #   secondPerson:
+  #     type: object
+  #     summary: the text contains verbs conjugated at the second or first person
+  #     description: it identifies all the occurrences of verbs conjugated at the first or second person
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   personalStyle:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   intensifiers:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   shortenedForms:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   modals:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   interrogatives:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   uppercaseWords:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   aggressivePunctuation:
+  #     type: object
+  #     summary: the text contains aggressive punctuation
+  #     description: it identifies the presence of aggressive punctuation in the text
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   uncommonPunctuation:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   emoji:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   fleshReadingEase:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   misleadingHeadline:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   negativeSentiment:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   positiveSentiment:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   anger:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   fear:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   joy:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   sadness:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   irony:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   flame:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   stereotype:
+  #     type: object
+  #     summary: summary
+  #     description: description
+  #     properties:
+  #       absolute:
+  #         $ref: "#/components/schemas/categoricalValue"
+  #       local:
+  #         $ref: "#/components/schemas/scoreType1"
+  #       global:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   # informalStyle:
+  #   #   type: object
+  #   #   description: it returns the informal style score, which is composed of a list of all sub-features and their average
+  #   #   properties:
+  #   #     secondPerson:
+  #   #       $ref: "#/components/schemas/secondPerson"
+  #   #     personalStyle:
+  #   #         $ref: "#/components/schemas/personalStyle"
+  #   #     intensifiers:
+  #   #         $ref: "#/components/schemas/intensifiers"
+  #   #     shortened:
+  #   #       $ref: "#/components/schemas/shortenedForms"
+  #   #     modals:
+  #   #         $ref: "#/components/schemas/modals"
+  #   #     interrogatives:
+  #   #       $ref: "#/components/schemas/interrogatives"
+  #   #     uppercaseWords:
+  #   #         $ref: "#/components/schemas/uppercaseWords"
+  #   #     aggressivePunctuation:
+  #   #       $ref: "#/components/schemas/aggressivePunctuation"
+  #   #     uncommonPunctuation:
+  #   #       $ref: "#/components/schemas/uncommonPunctuation"
+  #   #     emoji:
+  #   #       $ref: "#/components/schemas/emoji"
+  #   #     overallScore:
+  #   #       $ref: "#/components/schemas/averageValue"
+
+  #   readability:
+  #     type: object
+  #     description: desc
+  #     properties:
+  #       fleshReadingEase:
+  #         $ref: '#/components/schemas/fleshReadingEase'
+
+  #   clickBait:
+  #     type: object
+  #     description: desc
+  #     properties:
+  #       misleadingHeadline:
+  #         $ref: '#/components/schemas/misleadingHeadline'
+
+  #   affectiveStyle:
+  #     type: object
+  #     description: desc
+  #     properties:
+  #       positiveSentiment:
+  #         $ref: '#/components/schemas/positiveSentiment'
+  #       negativeSentiment:
+  #         $ref: "#/components/schemas/negativeSentiment"
+  #       joy:
+  #         $ref: "#/components/schemas/joy"
+  #       sadness:
+  #         $ref: "#/components/schemas/sadness"
+  #       fear:
+  #         $ref: "#/components/schemas/fear"
+  #       anger:
+  #         $ref: "#/components/schemas/anger"
+
+  #   dangerousStyle:
+  #     type: object
+  #     description: desc
+  #     properties:
+  #       irony:
+  #         $ref: '#/components/schemas/irony'
+  #       flame:
+  #         $ref: "#/components/schemas/flame"
+  #       stereotype:
+  #         $ref: "#/components/schemas/stereotype"
+
+  #   # articleEvaluation:
+  #   #   type: object
+  #   #   description: description
+  #   #   properties:
+  #   #     analysisId:
+  #   #       $ref: "#/components/schemas/id"
+  #   #     informalStyle:
+  #   #       $ref: "#/components/schemas/informalStyle"
+  #   #     readability:
+  #   #       $ref: "#/components/schemas/readability"
+  #   #     clickBait:
+  #   #       $ref: "#/components/schemas/clickBait"
+  #   #     affectiveStyle:
+  #   #       $ref: "#/components/schemas/affectiveStyle"
+  #   #     dangerousStyle:
+  #   #       $ref: "#/components/schemas/dangerousStyle"
+
+  #   explanationFlame:
+  #     summary: the piece of text that contribute to determine that an article expresses inflammatory contents
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationStereotype:
+  #     summary: the piece of text that contribute to determine that an article expresses stereotypical contents
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationIrony:
+  #     summary: the piece of text that contribute to determine that an article expresses ironic contents
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationDanger:
+  #     summary: all the explanations of dangerous features
+  #     required:
+  #       -  explanationType
+  #     properties:
+  #       explanationDim:
+  #         $ref: "#/components/schemas/explanationType"
+  #       explanationFlame:
+  #         $ref: "#/components/schemas/explanationFlame"
+  #       explanationStereotype:
+  #         $ref: "#/components/schemas/explanationStereotype"
+  #       explanationIrony:
+  #         $ref: "#/components/schemas/explanationIrony"
+
+  #   explanationAnger:
+  #     summary: the piece of text that contribute to determine that an article expresses anger
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationFear:
+  #     summary: the piece of text that contribute to determine that an article expresses anger
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationJoy:
+  #     summary: the piece of text that contribute to determine that an article expresses joy
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationSadness:
+  #     summary: the piece of text that contribute to determine that an article expresses sadness
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationPositiveSentiment:
+  #     summary: the piece of text that contribute to determine that an article expresses a positive sentiment
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationNegativeSentiment:
+  #     summary: the piece of text that contribute to determine that an article expresses a negative sentiment
+  #     properties:
+  #       token:
+  #         $ref: "#/components/schemas/token"
+  #       probability:
+  #         $ref: "#/components/schemas/scoreType1"
+
+  #   explanationAffective:
+  #     summary: all the explanations of dangerous features
+  #     required:
+  #       -  explanationType
+  #     properties:
+  #       explanationDim:
+  #         $ref: "#/components/schemas/explanationType"
+  #       explanationNegativeSentiment:
+  #         $ref: "#/components/schemas/explanationNegativeSentiment"
+  #       explanationPositiveSentiment:
+  #         $ref: "#/components/schemas/explanationPositiveSentiment"
+  #       explanationAnger:
+  #         $ref: "#/components/schemas/explanationAnger"
+  #       explanationSadness:
+  #         $ref: "#/components/schemas/explanationSadness"
+  #       explanationJoy:
+  #         $ref: "#/components/schemas/explanationJoy"
+  #       explanationFear:
+  #         $ref: "#/components/schemas/explanationFear"
+
+  #   explanation:
+  #     oneOf:
+  #       - $ref: "#/components/schemas/explanationAffective"
+  #       - $ref: "#/components/schemas/explanationDanger"
+  #     discriminator:
+  #       propertyName: explanationDim
+
+  #   explanationType:
+
+  #     name: explanation
+  #     type: string
+  #     properties:
+  #       enum:
+  #         - affectiveStyle
+  #         - dangerousStyle
+
+  #   errorMessage:
+  #     type: string
+  #     maxLength: 256
+  #     description: A text message describing an error
