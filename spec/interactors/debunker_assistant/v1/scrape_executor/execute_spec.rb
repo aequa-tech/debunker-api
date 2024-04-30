@@ -11,6 +11,8 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
   describe 'token' do
     it 'increase token retries counter' do
+      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(false)
+      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(true)
       expect(ctx.token.retries).to eq(1)
     end
 
