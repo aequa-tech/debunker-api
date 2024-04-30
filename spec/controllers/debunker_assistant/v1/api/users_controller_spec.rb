@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DebunkerAssistant::V1::Api::AuthenticatedController, type: :controller do
+RSpec.describe DebunkerAssistant::V1::Api::UsersController, type: :controller do
   let(:user) { create(:user) }
   let(:api_key) { create(:api_key, user:) }
 
@@ -19,6 +19,10 @@ RSpec.describe DebunkerAssistant::V1::Api::AuthenticatedController, type: :contr
     end
 
     allow(DebunkerAssistant::V1::ApiAuthenticator::Organizer).to receive(:call) do
+      double('Interactor::Context', success?: true)
+    end
+
+    allow(DebunkerAssistant::V1::ParamsValidator::Organizer).to receive(:call) do
       double('Interactor::Context', success?: true)
     end
   end

@@ -11,7 +11,7 @@ module DebunkerAssistant
             payload: request.body.read,
             token_value: @token_value
           )
-          return render json: { message: result.message }, status: result.status if result.failure?
+          return render json: { message: result.message }, status: result.status unless result.success?
 
           render json: { message: I18n.t('api.messages.scrape.queued'), url: result.url, token: result.token.value },
                  status: :ok
