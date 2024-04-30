@@ -1,0 +1,36 @@
+env:
+  RAILS_ENV: test
+  POSTGRES_PASSWORD: password
+
+name: Pipeline for main
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  specs:
+    name: Run Specs
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        ports:
+          ['5432:5432']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/build
+
+      - name: Run specs
+        run: bin/rails db:setup && bin/rake
+        shell: bash
+        env:
+          DATABASE_URL: postgres://postgres:${{ env.POSTGRES_PASSWORD }}@localhost:5432/postgres
