@@ -26,8 +26,8 @@ it:
     errors:
       models:
         debunker_assistant/v1/api/scrape_payload:
-          analysis_type_blank: "Il tipo di analisi non può essere vuoto"
-          analysis_type_invalid: "Il tipo di analisi non è in un formato valido"
+          analysis_types_blank: "Il tipo di analisi non può essere vuoto"
+          analysis_types_invalid: "Il tipo di analisi non è in un formato valido"
           content_language_length: "La lingua del contenuto deve essere di 2 caratteri"
           content_language_invalid: "La lingua del contenuto non è supportata"
           evaluation_or_explanation: "Almeno uno tra 'evaluation' e 'explanation' deve essere presente"
