@@ -55,6 +55,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'rspec-sidekiq'
   gem 'selenium-webdriver'
+  gem 'shoulda-matchers'
 end
 
 group :development do
