@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe DebunkerAssistant::V1::Api::AuthenticatedController, type: :controller do
-  # mock a index just to test the before actions
+  # Mock a index just to test the before actions
   controller do
     def index
       render json: { message: 'Hello, world!' }, status: :ok
