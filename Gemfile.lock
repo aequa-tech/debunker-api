@@ -225,6 +225,11 @@ GEM
       rspec-expectations (~> 3.13)
       rspec-mocks (~> 3.13)
       rspec-support (~> 3.13)
+    rspec-sidekiq (4.2.0)
+      rspec-core (~> 3.0)
+      rspec-expectations (~> 3.0)
+      rspec-mocks (~> 3.0)
+      sidekiq (>= 5, < 8)
     rspec-support (3.13.1)
     rubocop (1.57.2)
       json (~> 2.3)
@@ -293,6 +298,7 @@ DEPENDENCIES
   rails (~> 7.0.8, >= 7.0.8.1)
   rest-client (~> 2.1)
   rspec-rails
+  rspec-sidekiq
   rubocop
   selenium-webdriver
   sidekiq

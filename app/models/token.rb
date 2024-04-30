@@ -14,7 +14,7 @@ class Token < ApplicationRecord
   end
 
   def occupy!(url)
-    update_columns(used_on: url, retries: 0)
+    update_columns(used_on: url, retries: 0, support_response_object: '')
   end
 
   def temporary_response!(payload)
