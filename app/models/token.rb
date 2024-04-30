@@ -6,7 +6,7 @@ class Token < ApplicationRecord
   scope :available, -> { where(used_on: nil) }
 
   def available?
-    used_on.blank?
+    used_on.nil?
   end
 
   def free!
@@ -27,6 +27,6 @@ class Token < ApplicationRecord
   end
 
   def consume!
-    token.destroy!
+    destroy!
   end
 end
