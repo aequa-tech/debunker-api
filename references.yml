@@ -334,35 +334,6 @@ components:
       name: X-API-Secret
 
   schemas:
-    affectiveStyle:
-      description: desc
-      properties:
-        anger:
-          $ref: '#/components/schemas/anger'
-        fear:
-          $ref: '#/components/schemas/fear'
-        joy:
-          $ref: '#/components/schemas/joy'
-        negativeSentiment:
-          $ref: '#/components/schemas/negativeSentiment'
-        positiveSentiment:
-          $ref: '#/components/schemas/positiveSentiment'
-        sadness:
-          $ref: '#/components/schemas/sadness'
-      type: object
-
-    aggressivePunctuation:
-      description: it identifies the presence of aggressive punctuation in the text
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: the text contains aggressive punctuation
-      type: object
-
     analysisTypes:
       minProperties: 1
       properties:
@@ -370,67 +341,6 @@ components:
           $ref: '#/components/schemas/evaluationAnalysis'
         explanation:
           $ref: '#/components/schemas/explanationAnalysis'
-      type: object
-
-    anger:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    basicUrl:
-      format: stringUri
-      type: string
-
-    categoricalValue:
-      description: a categorical representation of a feature
-      format: int32
-      type: integer
-
-    charLimit:
-      default: 10000
-      description: The limit of charachters of a text to be analyzed.
-      maximum: 15000
-      type: integer
-
-    clickBait:
-      description: desc
-      properties:
-        misleadingHeadline:
-          $ref: '#/components/schemas/misleadingHeadline'
-      type: object
-
-    dangerousStyle:
-      description: desc
-      properties:
-        flame:
-          $ref: '#/components/schemas/flame'
-        irony:
-          $ref: '#/components/schemas/irony'
-        stereotype:
-          $ref: '#/components/schemas/stereotype'
-      type: object
-
-    email:
-      format: email
-      type: string
-
-    emoji:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
       type: object
 
     evaluationAnalysis:
@@ -441,42 +351,6 @@ components:
         - callbackUrl
       type: object
 
-    evaluationPayload:
-      properties:
-        affectiveStyle:
-          $ref: '#/components/schemas/affectiveStyle'
-        analysisId:
-          $ref: '#/components/schemas/id'
-        clickBait:
-          $ref: '#/components/schemas/clickBait'
-        dangerousStyle:
-          $ref: '#/components/schemas/dangerousStyle'
-        informalStyle:
-          $ref: '#/components/schemas/informalStyle'
-        readability:
-          $ref: '#/components/schemas/readability'
-      type: object
-
-    explanationAffective:
-      properties:
-        explanationAnger:
-          $ref: '#/components/schemas/explanationAnger'
-        explanationDim:
-          $ref: '#/components/schemas/explanationType'
-        explanationFear:
-          $ref: '#/components/schemas/explanationFear'
-        explanationJoy:
-          $ref: '#/components/schemas/explanationJoy'
-        explanationNegativeSentiment:
-          $ref: '#/components/schemas/explanationNegativeSentiment'
-        explanationPositiveSentiment:
-          $ref: '#/components/schemas/explanationPositiveSentiment'
-        explanationSadness:
-          $ref: '#/components/schemas/explanationSadness'
-      required:
-        - explanationType
-      summary: all the explanations of dangerous features
-
     explanationAnalysis:
       properties:
         callbackUrl:
@@ -486,305 +360,6 @@ components:
       required:
         - callbackUrl
         - explanationType
-      type: object
-
-    explanationAnger:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses anger
-
-    explanationDanger:
-      properties:
-        explanationDim:
-          $ref: '#/components/schemas/explanationType'
-        explanationFlame:
-          $ref: '#/components/schemas/explanationFlame'
-        explanationIrony:
-          $ref: '#/components/schemas/explanationIrony'
-        explanationStereotype:
-          $ref: '#/components/schemas/explanationStereotype'
-      required:
-        - explanationType
-      summary: all the explanations of dangerous features
-
-    explanationFear:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses anger
-
-    explanationFlame:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses inflammatory contents
-
-    explanationIrony:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses ironic contents
-
-    explanationJoy:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses joy
-
-    explanationNegativeSentiment:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses a negative sentiment
-
-    explanationPayload:
-      discriminator:
-        propertyName: explanationDim
-      oneOf:
-        - $ref: '#/components/schemas/explanationAffective'
-        - $ref: '#/components/schemas/explanationDanger'
-
-    explanationPositiveSentiment:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses a positive sentiment
-
-    explanationSadness:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses sadness
-
-    explanationStereotype:
-      properties:
-        probability:
-          $ref: '#/components/schemas/scoreType1'
-        token:
-          $ref: '#/components/schemas/token'
-      summary: the piece of text that contribute to determine that an article expresses stereotypical contents
-
-    explanationType:
-      enum: [affectiveStyle, dangerousStyle]
-      name: explanation
-      type: string
-
-    fear:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    flame:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    fleshReadingEase:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    id:
-      description: An unique id used for handling next APIs requests
-      type: string
-
-    informalStyle:
-      description: it returns the informal style score, which is composed of a list of all sub-features and their average
-      properties:
-        aggressivePunctuation:
-          $ref: '#/components/schemas/aggressivePunctuation'
-        emoji:
-          $ref: '#/components/schemas/emoji'
-        intensifiers:
-          $ref: '#/components/schemas/intensifiers'
-        interrogatives:
-          $ref: '#/components/schemas/interrogatives'
-        modals:
-          $ref: '#/components/schemas/modals'
-        overallScore:
-          $ref: '#/components/schemas/averageValue'
-        personalStyle:
-          $ref: '#/components/schemas/personalStyle'
-        secondPerson:
-          $ref: '#/components/schemas/secondPerson'
-        shortened:
-          $ref: '#/components/schemas/shortenedForms'
-        uncommonPunctuation:
-          $ref: '#/components/schemas/uncommonPunctuation'
-        uppercaseWords:
-          $ref: '#/components/schemas/uppercaseWords'
-      type: object
-
-    intensifiers:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    interrogatives:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    irony:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    joy:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    language:
-      default: it
-      description: The language of the article that you want to analyze. Actually you can choose between Italian (it) and English (en)
-      enum: [it,en]
-      type: string
-
-    maxRetries:
-      default: 2
-      description: The total number of retries. Default is 2
-      maximum: 5
-      type: integer
-
-    misleadingHeadline:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    modals:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    negativeSentiment:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    notValidResponse:
-      properties:
-        message:
-          description: A text message describing the response.
-          type: string
-      type: object
-
-    personalStyle:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    positiveSentiment:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    readability:
-      description: desc
-      properties:
-        fleshReadingEase:
-          $ref: '#/components/schemas/fleshReadingEase'
       type: object
 
     requestResponse:
@@ -799,105 +374,34 @@ components:
         - message
       type: object
 
-    retry:
-      default: false
-      description: Choose if you want to retry the call to the API. Default is false
-      type: boolean
-
-    sadness:
-      description: description
+    notValidResponse:
       properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
+        message:
+          description: A text message describing the response.
+          type: string
       type: object
 
-    scoreType1:
-      description: a score associated to a feature in the range 0-1
-      format: float
-      maximum: 1
-      minimum: 0
-      type: number
+    explanationPayload:
+      discriminator:
+        propertyName: explanationDim
+      oneOf:
+        - $ref: '#/components/schemas/explanationAffective'
+        - $ref: '#/components/schemas/explanationDanger'
 
-    scoreType2:
-      description: aa score associated to a feature in the range -1-1
-      format: float
-      maximum: 1
-      minimum: -1
-      type: number
-
-    secondPerson:
-      description: it identifies all the occurrences of verbs conjugated at the first or second person
+    evaluationPayload:
       properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: the text contains verbs conjugated at the second or first person
-      type: object
-
-    shortenedForms:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    stereotype:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    timeout:
-      default: 5
-      description: It sets the timeout of a request to our APIs. It is expressed in seconds. Default is 5
-      maximum: 20
-      type: integer
-
-    token:
-      description: a chunck of text that corresponds to a word or a piece of word
-      type: string
-
-    uncommonPunctuation:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
-      type: object
-
-    uppercaseWords:
-      description: description
-      properties:
-        absolute:
-          $ref: '#/components/schemas/categoricalValue'
-        global:
-          $ref: '#/components/schemas/scoreType1'
-        local:
-          $ref: '#/components/schemas/scoreType1'
-      summary: summary
+        analysisId:
+          $ref: "#/components/schemas/id"
+        informalStyle:
+          $ref: "#/components/schemas/informalStyle"
+        readability:
+          $ref: "#/components/schemas/readability"
+        clickBait:
+          $ref: "#/components/schemas/clickBait"
+        affectiveStyle:
+          $ref: "#/components/schemas/affectiveStyle"
+        dangerousStyle:
+          $ref: "#/components/schemas/dangerousStyle"
       type: object
 
     user:
@@ -910,3 +414,488 @@ components:
           enum: [admin, user]
           type: string
       type: object
+
+    language:
+      default: it
+      description: The language of the article that you want to analyze. Actually you can choose between Italian (it) and English (en)
+      enum: [it,en]
+      type: string
+
+    email:
+      format: email
+      type: string
+
+    # =======================================================
+
+    basicUrl:
+      type: string
+      format: stringUri
+
+    id:
+      type: string
+      description: an unique id used for handling next APIs requests
+
+    retry:
+      description: choose if you want to retry the call to the API. Default is false
+      type: boolean
+      default: false
+
+    maxRetries:
+      description: the total number of retries. Default is 2
+      type: integer
+      maximum: 5
+      default: 2
+
+    timeout:
+      description: it sets the timeout of a request to our APIs. It is expressed in seconds. Default is 5
+      type: integer
+      maximum: 20
+      default: 5
+
+    charLimit:
+      description: the limit of charachters of a text to be analyzed.
+      type: integer
+      maximum: 15000
+      default: 10000
+
+    categoricalValue:
+      type: integer
+      format: int32
+      description: a categorical representation of a feature
+
+    scoreType1:
+      type: number
+      format: float
+      description: a score associated to a feature in the range 0-1
+      minimum: 0
+      maximum: 1
+
+    scoreType2:
+      type: number
+      format: float
+      description: aa score associated to a feature in the range -1-1
+      minimum: -1
+      maximum: 1
+
+    token:
+      type: string
+      description: a chunck of text that corresponds to a word or a piece of word
+
+
+    secondPerson:
+      type: object
+      summary: the text contains verbs conjugated at the second or first person
+      description: it identifies all the occurrences of verbs conjugated at the first or second person
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    personalStyle:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    intensifiers:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    shortenedForms:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    modals:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+    interrogatives:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    uppercaseWords:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    aggressivePunctuation:
+      type: object
+      summary: the text contains aggressive punctuation
+      description: it identifies the presence of aggressive punctuation in the text
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    uncommonPunctuation:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    emoji:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    fleshReadingEase:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    misleadingHeadline:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    negativeSentiment:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    positiveSentiment:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    anger:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    fear:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    joy:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    sadness:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    irony:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+    flame:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    stereotype:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        title:
+          $ref: "#/components/schemas/labelPropagation"
+        content:
+          $ref: "#/components/schemas/labelPropagation"
+
+    labelPropagation:
+      type: object
+      summary: summary
+      description: description
+      properties:
+        absolute:
+          $ref: "#/components/schemas/categoricalValue"
+        local:
+          $ref: "#/components/schemas/scoreType1"
+        global:
+          $ref: "#/components/schemas/scoreType1"
+
+    informalStyle:
+      type: object
+      description: it returns the informal style score, which is composed of a list of all sub-features and their average
+      properties:
+        secondPerson:
+          $ref: "#/components/schemas/secondPerson"
+        personalStyle:
+            $ref: "#/components/schemas/personalStyle"
+        intensifiers:
+            $ref: "#/components/schemas/intensifiers"
+        shortened:
+          $ref: "#/components/schemas/shortenedForms"
+        modals:
+            $ref: "#/components/schemas/modals"
+        interrogatives:
+          $ref: "#/components/schemas/interrogatives"
+        uppercaseWords:
+            $ref: "#/components/schemas/uppercaseWords"
+        aggressivePunctuation:
+          $ref: "#/components/schemas/aggressivePunctuation"
+        uncommonPunctuation:
+          $ref: "#/components/schemas/uncommonPunctuation"
+        emoji:
+            $ref: "#/components/schemas/emoji"
+        overallScore:
+          $ref: "#/components/schemas/scoreType1"
+
+    readability:
+      type: object
+      description: desc
+      properties:
+        fleshReadingEase:
+          $ref: '#/components/schemas/fleshReadingEase'
+
+    clickBait:
+      type: object
+      description: desc
+      properties:
+        misleadingHeadline:
+          $ref: '#/components/schemas/misleadingHeadline'
+
+    affectiveStyle:
+      type: object
+      description: desc
+      properties:
+        positiveSentiment:
+          $ref: '#/components/schemas/positiveSentiment'
+        negativeSentiment:
+          $ref: "#/components/schemas/negativeSentiment"
+        joy:
+          $ref: "#/components/schemas/joy"
+        sadness:
+          $ref: "#/components/schemas/sadness"
+        fear:
+          $ref: "#/components/schemas/fear"
+        anger:
+          $ref: "#/components/schemas/anger"
+
+    dangerousStyle:
+      type: object
+      description: desc
+      properties:
+        irony:
+          $ref: '#/components/schemas/irony'
+        flame:
+          $ref: "#/components/schemas/flame"
+        stereotype:
+          $ref: "#/components/schemas/stereotype"
+
+    echoEffect:
+      type: object
+      description: desc
+      properties:
+        labelPropagation:
+          $ref: '#/components/schemas/labelPropagation'
+
+    reliability:
+      type: object
+      summary: summary
+      description: description
+      property:
+        absolute:
+          $ref: "#/components/schemas/categoricalValue"
+
+    explanationFlame:
+      summary: the piece of text that contribute to determine that an article expresses inflammatory contents
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationStereotype:
+      summary: the piece of text that contribute to determine that an article expresses stereotypical contents
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationIrony:
+      summary: the piece of text that contribute to determine that an article expresses ironic contents
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationDanger:
+      summary: all the explanations of dangerous features
+      required:
+        -  explanationType
+      properties:
+        explanationDim:
+          $ref: "#/components/schemas/explanationType"
+        explanationFlame:
+          $ref: "#/components/schemas/explanationFlame"
+        explanationStereotype:
+          $ref: "#/components/schemas/explanationStereotype"
+        explanationIrony:
+          $ref: "#/components/schemas/explanationIrony"
+
+    explanationAnger:
+      summary: the piece of text that contribute to determine that an article expresses anger
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationFear:
+      summary: the piece of text that contribute to determine that an article expresses anger
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationJoy:
+      summary: the piece of text that contribute to determine that an article expresses joy
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationSadness:
+      summary: the piece of text that contribute to determine that an article expresses sadness
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationPositiveSentiment:
+      summary: the piece of text that contribute to determine that an article expresses a positive sentiment
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationNegativeSentiment:
+      summary: the piece of text that contribute to determine that an article expresses a negative sentiment
+      properties:
+        token:
+          $ref: "#/components/schemas/token"
+        probability:
+          $ref: "#/components/schemas/scoreType1"
+
+    explanationAffective:
+      summary: all the explanations of dangerous features
+      required:
+        -  explanationType
+      properties:
+        explanationDim:
+          $ref: "#/components/schemas/explanationType"
+        explanationNegativeSentiment:
+          $ref: "#/components/schemas/explanationNegativeSentiment"
+        explanationPositiveSentiment:
+          $ref: "#/components/schemas/explanationPositiveSentiment"
+        explanationAnger:
+          $ref: "#/components/schemas/explanationAnger"
+        explanationSadness:
+          $ref: "#/components/schemas/explanationSadness"
+        explanationJoy:
+          $ref: "#/components/schemas/explanationJoy"
+        explanationFear:
+          $ref: "#/components/schemas/explanationFear"
+
+    explanationType:
+      name: explanation
+      type: string
+      enum:
+        - affectiveStyle
+        - dangerousStyle
+        - networkAnalysis
