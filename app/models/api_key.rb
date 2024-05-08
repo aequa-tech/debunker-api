@@ -35,6 +35,7 @@ class ApiKey < ActiveRecord::Base
 
   def encode_secret
     self.secret_token = JWT.encode(secret_token, ApiKey.usk(access_token, user))
+    tokens.destroy_all
   end
 
   def masked_secret
