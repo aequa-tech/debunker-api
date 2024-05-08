@@ -40,9 +40,9 @@ module DebunkerApi
     # and remove all headers except Content-Type (lib/debunker_assistant/v1/middleware/response_headers.rb).
     # it is important to add this middleware before the ActionDispatch::HostAuthorization middleware to avoid
     # other headers being added after this middleware.
-    # config.middleware.insert_before(
-    #   ActionDispatch::HostAuthorization,
-    #   DebunkerAssistant::V1::Middleware::ResponseHeaders
-    # )
+    config.middleware.insert_before(
+      ActionDispatch::HostAuthorization,
+      DebunkerAssistant::V1::Middleware::ResponseHeaders
+    )
   end
 end
