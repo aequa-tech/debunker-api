@@ -44,6 +44,9 @@ it:
           timeout_invalid: "Il valore di 'timeout' non è valido"
           url_blank: "L'indirizzo per l'analisi non può essere vuoto"
   activerecord:
+    errors:
+      messages:
+        record_invalid: "Il record non è valido"
     models:
       user:
         one: "Utente"
