@@ -2,7 +2,9 @@
 
 # With this configuration, we are going to throttle the requests to 5 requests per minute.
 # The throttle is going to be applied to the API key or the IP address if the API key is not present.
-Rack::Attack.throttle('ratelimiting', limit: 5, period: 1.minutes) do |request|
+Rack::Attack.throttle('ratelimiting',
+                      limit: ENV.fetch('RATE_LIMIT').to_i,
+                      period: ENV.fetch('RATE_LIMIT_PERIOD_MINUTES').to_i.minutes) do |request|
   request.env['HTTP_X_API_KEY'] || 'no-key'
 end
 
