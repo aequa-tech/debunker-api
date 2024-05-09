@@ -9,8 +9,7 @@ RSpec.describe DebunkerAssistant::V1::Api::ScrapeController, type: :controller d
   let(:expected_success_response) do
     {
       message: I18n.t('api.messages.scrape.queued'),
-      url: 'http://example.com',
-      token: token.value
+      url: 'http://example.com'
     }
   end
 
