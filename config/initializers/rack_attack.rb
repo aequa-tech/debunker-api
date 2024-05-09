@@ -15,7 +15,7 @@ end
 Rack::Attack.throttled_responder = lambda do |_env|
   [
     429,
-    { 'Content-Type' => 'application/json' },
+    { 'Content-Type' => 'application/json; charset=utf-8' },
     [{ message: I18n.t('api.messages.api_key.error.too_many_requests') }.to_json]
   ]
 end

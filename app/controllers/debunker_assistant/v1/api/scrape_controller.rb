@@ -13,7 +13,7 @@ module DebunkerAssistant
           )
           return render json: { message: result.message }, status: result.status unless result.success?
 
-          render json: { message: I18n.t('api.messages.scrape.queued'), url: result.url, token: result.token.value },
+          render json: { message: I18n.t('api.messages.scrape.queued'), url: result.url },
                  status: :ok
         end
 

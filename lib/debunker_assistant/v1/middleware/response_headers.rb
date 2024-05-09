@@ -27,7 +27,7 @@ module DebunkerAssistant
         private
 
         def v1?(env)
-          env['REQUEST_PATH'].start_with?('/api/v1/')
+          env['PATH_INFO'].start_with?('/api/v1/')
         end
 
         def body_response(response)
