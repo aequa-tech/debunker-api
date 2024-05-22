@@ -19,7 +19,7 @@ RSpec.describe DebunkerAssistant::V1::Jobs::ScrapeJob, type: :job do
 
     context 'when the result is successful' do
       let(:success) { true }
-      let(:retry_perform) { false }
+      let(:retry_perform) { :no_retry }
 
       it 'does not requeue the job' do
         expect { subject }.not_to change(described_class.jobs, :size)
@@ -28,7 +28,7 @@ RSpec.describe DebunkerAssistant::V1::Jobs::ScrapeJob, type: :job do
 
     context 'when the result is not successful but retry_perform is true' do
       let(:success) { false }
-      let(:retry_perform) { true }
+      let(:retry_perform) { :retry }
 
       it 'requeues the job' do
         expect { subject }.to change(described_class.jobs, :size).by(1)
@@ -37,7 +37,7 @@ RSpec.describe DebunkerAssistant::V1::Jobs::ScrapeJob, type: :job do
 
     context 'when the result is not successful and retry_perform is false' do
       let(:success) { false }
-      let(:retry_perform) { false }
+      let(:retry_perform) { :no_retry }
 
       it 'does not requeue the job' do
         expect { subject }.not_to change(described_class.jobs, :size)

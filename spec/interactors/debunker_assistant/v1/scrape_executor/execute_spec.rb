@@ -11,15 +11,15 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
   describe 'token' do
     it 'increase token retries counter' do
-      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(false)
-      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(true)
+      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:failure)
+      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
       expect(ctx.token.retries).to eq(1)
     end
 
     context 'when success' do
       before do
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(true)
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(true)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:success)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
       end
 
       it 'consume token' do
@@ -30,8 +30,8 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
     context 'when fail perfom' do
       before do
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(false)
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(true)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:failure)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
       end
 
       it 'not consume token' do
@@ -47,8 +47,8 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
     context 'when fail callback' do
       before do
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(true)
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(false)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:success)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:failure)
       end
 
       it 'not consume token' do
@@ -77,8 +77,8 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
   describe 'retry' do
     context 'when success' do
       before do
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(true)
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(true)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:success)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
       end
 
       it 'do not say to retry' do
@@ -89,8 +89,8 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
     context 'when fail perfom' do
       before do
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(false)
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(true)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:failure)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
       end
 
       it 'say to retry' do
@@ -107,8 +107,8 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
     context 'when fail callback' do
       before do
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(true)
-        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(false)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:success)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:failure)
       end
 
       it 'say to retry' do
