@@ -5,15 +5,30 @@ require 'rails_helper'
 RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interactor do
   let(:token) { create(:token, :occupied) }
   let(:payload) { { url: 'https://www.example.com' }.to_json }
-  let(:context) { { token_value: token.value, payload: } }
+  let(:context) { { token_value: token.value, payload:, from_retry: } }
 
+  let(:from_retry) { nil }
   let(:ctx) { described_class.call(context) }
 
   describe 'token' do
-    it 'increase token retries counter' do
-      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:failure)
-      allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
-      expect(ctx.token.retries).to eq(1)
+    context 'when from_retry different from incomplete_evaluation' do
+      let(:from_retry) { nil }
+
+      it 'increase token retries counter' do
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:failure)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
+        expect(ctx.token.retries).to eq(1)
+      end
+    end
+
+    context 'when from_retry is incomplete_evaluation' do
+      let(:from_retry) { 'incomplete_evaluation' }
+
+      it 'do not increase token retries counter' do
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:failure)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
+        expect(ctx.token.retries).to eq(0)
+      end
     end
 
     context 'when success' do
@@ -83,7 +98,7 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
       it 'do not say to retry' do
         expect(ctx.success?).to be_truthy
-        expect(ctx.retry_perform).to be_falsey
+        expect(ctx.retry_perform).to be_nil
       end
     end
 
@@ -95,7 +110,7 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
       it 'say to retry' do
         expect(ctx.success?).to be_falsey
-        expect(ctx.retry_perform).to be_truthy
+        expect(ctx.retry_perform).to eq(:retry)
       end
 
       it 'increase token retries counter' do
@@ -113,13 +128,25 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
       it 'say to retry' do
         expect(ctx.success?).to be_falsey
-        expect(ctx.retry_perform).to be_truthy
+        expect(ctx.retry_perform).to eq(:retry)
       end
 
       it 'increase token retries counter' do
         described_class.call(context)
         described_class.call(context)
         expect(token.reload.retries).to eq(2)
+      end
+    end
+
+    context 'when scrape is evaluation incomplete' do
+      before do
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePerform).to receive(:scrape).and_return(:incomplete_evaluation)
+        allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapeCallback).to receive(:callback).and_return(:success)
+      end
+
+      it 'say to retry' do
+        expect(ctx.success?).to be_falsey
+        expect(ctx.retry_perform).to eq(:retry_incomplete_evaluation)
       end
     end
 
@@ -130,7 +157,7 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::Execute, type: :interact
 
       it 'do not say to retry' do
         expect(ctx.success?).to be_truthy
-        expect(ctx.retry_perform).to be_falsey
+        expect(ctx.retry_perform).to eq(:no_retry)
       end
 
       it 'perform is not called' do

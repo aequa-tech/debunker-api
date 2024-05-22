@@ -20,7 +20,7 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::ValidPayload, type: :int
 
     it 'fails' do
       expect(described_class.call(context).failure?).to be_truthy
-      expect(described_class.call(context).retry_perform).to be_falsey
+      expect(described_class.call(context).retry_perform).to eq(:no_retry)
     end
   end
 end

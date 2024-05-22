@@ -10,7 +10,7 @@ module DebunkerAssistant
           scrape_payload = ::DebunkerAssistant::V1::Api::ScrapePayload.new(context.payload)
           return if scrape_payload.valid?
 
-          context.fail!(retry_perform: false)
+          context.fail!(retry_perform: :no_retry)
         end
       end
     end

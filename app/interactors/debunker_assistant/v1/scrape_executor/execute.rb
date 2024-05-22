@@ -9,10 +9,11 @@ module DebunkerAssistant
         before :prepare_context
 
         def call
-          context.token.try! unless context.from_retry.to_sym == :incomplete_evaluation
+          context.token.try! unless context.from_retry == 'incomplete_evaluation'
 
           if retry_status == :no_retry
             callback rescue nil # rubocop:disable Style/RescueModifier
+            context.retry_perform = retry_status
             return context.token.free!
           end
 
