@@ -21,7 +21,7 @@ module DebunkerAssistant
         end
 
         def retry_info(result)
-          return [24.hours.from_now, :incomplete_evaluation] if result.retry_perform == :retry_incomplete_evaluation
+          return [24.hours.from_now, 'incomplete_evaluation'] if result.retry_perform == :retry_incomplete_evaluation
 
           [30.seconds.from_now, nil]
         end
