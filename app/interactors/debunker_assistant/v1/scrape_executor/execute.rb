@@ -9,15 +9,19 @@ module DebunkerAssistant
         before :prepare_context
 
         def call
-          context.token.try!
+          context.token.try! unless context.from_retry == :incomplete_evaluation
 
-          unless retry?
+          if retry_status == :no_retry
             callback rescue nil # rubocop:disable Style/RescueModifier
             return context.token.free!
           end
 
-          return fail_with_retry! unless perform
-          return fail_with_retry! unless callback
+          context.result_perform = perform
+          return fail_with_retry! if context.result_perform == :failure
+
+          context.result_callback = callback
+          return fail_with_retry! if context.result_callback == :failure
+          return fail_with_retry! if context.result_perform == :incomplete_evaluation
 
           context.token.consume!
         end
@@ -29,12 +33,14 @@ module DebunkerAssistant
           context.token = Token.find_by(value: context.token_value) || fail_with_retry!
         end
 
-        def retry?
-          context.token.retries < (context.max_retries + 1)
+        def retry_status
+          return :retry_incomplete_evaluation if context.result_perform == :incomplete_evaluation
+
+          context.token.retries < (context.max_retries + 1) ? :retry : :no_retry
         end
 
         def fail_with_retry!
-          context.fail!(retry_perform: retry?)
+          context.fail!(retry_perform: retry_status)
         end
 
         def perform

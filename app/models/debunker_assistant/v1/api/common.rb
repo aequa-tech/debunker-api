@@ -9,24 +9,42 @@ module DebunkerAssistant
         def parse_json(json)
           JSON.parse(json).deep_symbolize_keys
         rescue JSON::ParserError
-          {}
+          json
+        end
+
+        def incomplete_status
+          206
         end
 
         def init_support_response_object(incoming_payload_object, token)
           return parse_json(token.support_response_object) if token.support_response_object.present?
 
           support_object = {}
-          incoming_payload_object.analysis_types.each_key do |analysis_type|
-            support_object[analysis_type] = {
+          support_object[:scrape] = {
+            request_id: nil
+          }
+
+          support_object[:evaluation] = {
+            analysis_id: nil,
+            data: {},
+            analysis_status: 0,
+            callback_status: 0
+          }
+
+          incoming_payload_object.analysis_types.except(:evaluation).each_key do |type|
+            support_object[type] = {
               data: {},
               analysis_status: 0,
               callback_status: 0
             }
           end
+
           support_object
         end
 
         def success_status?(status)
+          return false if status.to_i == incomplete_status
+
           (status.to_i / 100) == 2
         end
       end

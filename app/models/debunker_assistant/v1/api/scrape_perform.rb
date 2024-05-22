@@ -19,73 +19,108 @@ module DebunkerAssistant
         end
 
         def scrape
-          @request_id = llm_scrape
-          @token.temporary_response!(@support_response_object.to_json) and return perform_outcome unless @request_id
+          @request_id = @support_response_object[:scrape][:request_id] || llm_scrape
+          return perform_outcome unless @request_id
 
-          @incoming_payload.analysis_types.each_key do |analysis_type|
-            perform_analysis(analysis_type)
-          end
+          store_scrape_success(@request_id)
 
-          @token.temporary_response!(@support_response_object.to_json)
+          llm_evaluation
+          llm_explanations
           perform_outcome
         end
 
         private
 
         def llm_scrape
-          response = RestClient.post([@base_url, 'scrape'].join('/') + "?url=#{CGI.escape(@incoming_payload.url)}", {})
+          response = RestClient.post([@base_url, 'scrape'].join('/') + "?inputUrl=#{CGI.escape(@incoming_payload.url)}", {})
           payload = parse_json(response.body)
-          return payload[:result][:request_id] if status_success?(payload[:status])
+          return payload[:result][:request_id] if success_status?(payload[:status])
 
-          scrape_fail_all(payload[:message], payload[:status])
+          payload.is_a?(Hash) ? store_fail_all(payload[:message], payload[:status] || 500) : store_fail_all(payload, 500)
         rescue Errno::ECONNREFUSED,
                RestClient::ExceptionWithResponse,
                RestClient::Exceptions::ReadTimeout,
                JSON::ParserError => e
-          scrape_fail_all(I18n.t("api.messages.errors.#{e.class.to_s.underscore}"), e.try(:http_code) || 500)
+          store_fail_all(I18n.t("api.messages.errors.#{e.class.to_s.underscore}"), e.try(:http_code) || 500)
         end
 
-        def perform_analysis(analysis_type)
-          @current_analysis_type = analysis_type
-          return if must_skip_analysis?(analysis_type)
+        def llm_evaluation
+          return if must_skip_analysis?(:evaluation)
 
-          response = RestClient.get([@base_url, 'danger', request_id].join('/'))
+          response = RestClient.post([@base_url, 'evaluation', @incoming_payload.content_language, @request_id].join('/'), {})
           payload = parse_json(response.body)
-          scrape_success(analysis_type, payload[:result], payload[:status])
+
+          unless payload.is_a?(Hash) && payload[:analysisId]
+            payload.is_a?(Hash) ? store_fail(:evaluation, payload[:message], payload[:status] || 500) : store_fail(:evaluation, payload, 500)
+            return
+          end
+
+          evaluation_status = evaluation_complete?(payload) ? 200 : incomplete_status
+          store_evaluation_success(payload[:analysisId], payload.except(:analysisId), evaluation_status)
         rescue Errno::ECONNREFUSED,
                RestClient::ExceptionWithResponse,
                RestClient::Exceptions::ReadTimeout,
                JSON::ParserError => e
-          scrape_fail(@current_analysis_type, I18n.t("api.messages.errors.#{e.class.to_s.underscore}"),
-                      e.try(:http_code) || 500)
+          store_fail(:evaluation, I18n.t("api.messages.errors.#{e.class.to_s.underscore}"),
+                     e.try(:http_code) || 500)
         end
+
+        def llm_explanations; end
 
         def must_skip_analysis?(analysis_type)
-          success_status?(@support_response_object[analysis_type][:callback_status]) ||
-            success_status?(@support_response_object[analysis_type][:analysis_status])
+          success_status?(@support_response_object[analysis_type.to_sym][:analysis_status])
         end
 
-        def scrape_success(analysis_type, data, status)
-          @support_response_object[analysis_type] = { data:, analysis_status: status, callback_status: 0 }
+        def store_scrape_success(request_id)
+          @support_response_object[:scrape][:request_id] = request_id
+          @token.temporary_response!(@support_response_object.to_json)
+          true
+        end
+
+        def store_evaluation_success(analysis_id, data, status)
+          @support_response_object[:evaluation][:analysis_id] = analysis_id
+          @support_response_object[:evaluation][:data] = data
+          @support_response_object[:evaluation][:analysis_status] = status
+          @support_response_object[:evaluation][:callback_status] = 0
+          @token.temporary_response!(@support_response_object.to_json)
+          true
+        end
+
+        def store_fail(analysis_type, message, status)
+          @support_response_object[analysis_type][:data] = { message: }
+          @support_response_object[analysis_type][:analysis_status] = status
+          @support_response_object[analysis_type][:callback_status] = 0
+          @token.temporary_response!(@support_response_object.to_json)
           false
         end
 
-        def scrape_fail(analysis_type, message, status)
-          @support_response_object[analysis_type] = { data: { message: }, analysis_status: status, callback_status: 0 }
-          false
-        end
-
-        def scrape_fail_all(message, status)
+        def store_fail_all(message, status)
           @incoming_payload.analysis_types.each_key do |analysis_type|
-            scrape_fail(analysis_type, message, status)
+            store_fail(analysis_type, message, status)
           end
           false
         end
 
         def perform_outcome
-          @incoming_payload.analysis_types.keys.map do |analysis_type|
+          return :failure unless @support_response_object[:scrape][:request_id].present?
+          return :incomplete_evaluation if @support_response_object[:evaluation][:analysis_status] == incomplete_status
+
+          success = @incoming_payload.analysis_types.keys.map do |analysis_type|
             success_status?(@support_response_object[analysis_type][:analysis_status])
           end.all?
+          success ? :success : :failure
+        end
+
+        def evaluation_complete?(payload)
+          complete = true
+
+          payload.except(:analysisId).each_key do |key|
+            next unless complete
+
+            complete = success_status?(payload[key][:status])
+          end
+
+          complete
         end
       end
     end
