@@ -36,6 +36,7 @@ module DebunkerAssistant
 
         def retry_status
           return :retry_incomplete_evaluation if context.result_perform == :incomplete_evaluation
+          return :no_retry if context.token.blank?
 
           context.token.retries < (context.max_retries + 1) ? :retry : :no_retry
         end

@@ -26,7 +26,7 @@ module DebunkerAssistant
         def perform_callback(type)
           return if success_status?(@support_response_object[type][:callback_status])
 
-          response = RestClient.post(@incoming_payload.analysis_types[:callback_url],
+          response = RestClient.post(@incoming_payload.analysis_types[type][:callback_url],
                                      response_payload(type).to_json, content_type: :json, accept: :json)
           @support_response_object[type][:callback_status] = response.code
         rescue RestClient::ExceptionWithResponse,
@@ -42,7 +42,7 @@ module DebunkerAssistant
           success ? :success : :failure
         end
 
-        def response_payload
+        def response_payload(type)
           {
             url: @incoming_payload.url,
             status: @support_response_object[type][:analysis_status],
