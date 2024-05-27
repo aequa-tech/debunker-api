@@ -47,7 +47,7 @@ module DebunkerAssistant
         def llm_evaluation
           return if must_skip_analysis?(:evaluation)
 
-          response = RestClient.post([@base_url, 'evaluation', @incoming_payload.content_language, @request_id].join('/'), {})
+          response = RestClient.get([@base_url, 'evaluation'].join('/') + "?#{evaluation_params(@request_id)}")
           payload = parse_json(response.body)
 
           unless payload.is_a?(Hash) && payload[:analysisId]
@@ -121,6 +121,10 @@ module DebunkerAssistant
           end
 
           complete
+        end
+
+        def evaluation_params(request_id)
+          "request_id=#{request_id}"
         end
       end
     end
