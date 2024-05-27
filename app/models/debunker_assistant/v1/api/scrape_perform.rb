@@ -65,7 +65,37 @@ module DebunkerAssistant
                      e.try(:http_code) || 500)
         end
 
-        def llm_explanations; end
+        def llm_explanations
+          return if must_skip_analysis?(:explanations)
+
+          @incoming_payload.analysis_types[:explanations][:explanation_types].each do |explanation_type|
+            if @support_response_object[:evaluation][:analysis_id].blank?
+              store_explanations_fail(explanation_type, I18n.t('api.messages.scrape.error.evaluation'), 400)
+              next
+            end
+
+            response = RestClient.get([@base_url, 'explanations'].join('/') +
+                                      "?#{explanations_params(@support_response_object[:evaluation][:analysis_id], explanation_type)}")
+            payload = parse_json(response.body)
+
+            unless payload.is_a?(Hash) && response.code == 200
+              if payload.is_a?(Hash)
+                store_explanations_fail(explanation_type, payload[:message], payload[:status] || 500)
+              else
+                store_fail(explanation_type, payload, 500)
+              end
+              next
+            end
+
+            store_explanations_success(explanation_type, payload)
+          rescue Errno::ECONNREFUSED,
+                 RestClient::ExceptionWithResponse,
+                 RestClient::Exceptions::ReadTimeout,
+                 JSON::ParserError => e
+            store_explanations_fail(explanation_type, I18n.t("api.messages.errors.#{e.class.to_s.underscore}"),
+                                    e.try(:http_code) || 500)
+          end
+        end
 
         def must_skip_analysis?(analysis_type)
           success_status?(@support_response_object[analysis_type.to_sym][:analysis_status])
@@ -92,6 +122,26 @@ module DebunkerAssistant
           @support_response_object[analysis_type][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
           false
+        end
+
+        def store_explanations_fail(explanation_type, message, status = 500)
+          @support_response_object[:explanations][:data] ||= []
+          @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
+          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, message:, status: }
+          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status] }.max { |a, b| a <=> b }
+          @support_response_object[:explanations][:callback_status] = 0
+          @token.temporary_response!(@support_response_object.to_json)
+          false
+        end
+
+        def store_explanations_success(explanation_type, payload)
+          @support_response_object[:explanations][:data] ||= []
+          @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
+          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, data: payload, status: 200 }
+          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status] }.max { |a, b| a <=> b }
+          @support_response_object[:explanations][:callback_status] = 0
+          @token.temporary_response!(@support_response_object.to_json)
+          true
         end
 
         def store_fail_all(message, status)
@@ -135,6 +185,12 @@ module DebunkerAssistant
 
         def evaluation_params(request_id)
           "request_id=#{request_id}"
+        end
+
+        def explanations_params(analysis_id, explanation_type)
+          params= ["analysis_id=#{analysis_id}"]
+          params << "explanation_type=#{explanation_type}"
+          params.join('&')
         end
       end
     end

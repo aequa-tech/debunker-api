@@ -31,13 +31,11 @@ module DebunkerAssistant
             callback_status: 0
           }
 
-          incoming_payload_object.analysis_types.except(:evaluation).each_key do |type|
-            support_object[type] = {
-              data: {},
-              analysis_status: 0,
-              callback_status: 0
-            }
-          end
+          support_object[:explanations] = {
+            data: [],
+            analysis_status: 0,
+            callback_status: 0
+          }
 
           support_object
         end

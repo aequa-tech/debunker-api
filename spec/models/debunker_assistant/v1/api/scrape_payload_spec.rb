@@ -10,9 +10,9 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
         evaluation: {
           callback_url: 'https://example.com/evaluation'
         },
-        explanation: {
-          callback_url: 'https://example.com/explanation',
-          explanation_type: 'affectiveStyle'
+        explanations: {
+          callback_url: 'https://example.com/explanations',
+          explanation_types: ['affectiveStyle']
         }
       },
       content_language: 'en',
@@ -97,15 +97,15 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
     end
   end
 
-  describe '#evaluation_or_explanation_presence' do
-    context 'when evaluation and explanation are blank' do
+  describe '#evaluation_or_explanations_presence' do
+    context 'when evaluation and explanations are blank' do
       before do
-        valid_payload[:analysis_types] = { evaluation: {}, explanation: nil }
+        valid_payload[:analysis_types] = { evaluation: {}, explanations: nil }
         scrape_payload.valid?
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :evaluation_or_explanation)).to be_truthy
+        expect(scrape_payload.errors.added?(:analysis_types, :evaluation_or_explanations)).to be_truthy
       end
     end
   end
@@ -134,48 +134,48 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
     end
   end
 
-  describe '#explanation_validation' do
+  describe '#explanations_validation' do
     context 'when callback_url is blank' do
       before do
-        valid_payload[:analysis_types][:explanation][:callback_url] = nil
+        valid_payload[:analysis_types][:explanations][:callback_url] = nil
         scrape_payload.valid?
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanation_callback_blank)).to be_truthy
+        expect(scrape_payload.errors.added?(:analysis_types, :explanations_callback_blank)).to be_truthy
       end
     end
 
     context 'when callback_url is invalid' do
       before do
-        valid_payload[:analysis_types][:explanation][:callback_url] = 'htp:/wws.example.com'
+        valid_payload[:analysis_types][:explanations][:callback_url] = 'htp:/wws.example.com'
         scrape_payload.valid?
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanation_callback_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:analysis_types, :explanations_callback_invalid)).to be_truthy
       end
     end
 
-    context 'when explanation_type is blank' do
+    context 'when explanation_types is blank' do
       before do
-        valid_payload[:analysis_types][:explanation][:explanation_type] = nil
+        valid_payload[:analysis_types][:explanations][:explanation_types] = nil
         scrape_payload.valid?
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanation_explanation_type_blank)).to be_truthy
+        expect(scrape_payload.errors.added?(:analysis_types, :explanations_explanation_types_blank)).to be_truthy
       end
     end
 
-    context 'when explanation_type is invalid' do
+    context 'when explanation_types is invalid' do
       before do
-        valid_payload[:analysis_types][:explanation][:explanation_type] = 'not valid explanation type'
+        valid_payload[:analysis_types][:explanations][:explanation_types] = ['not valid explanations type']
         scrape_payload.valid?
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanation_explanation_type_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:analysis_types, :explanations_explanation_types_invalid)).to be_truthy
       end
     end
   end

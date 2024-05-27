@@ -176,7 +176,7 @@ webhooks:
                 - analysisType
                 - data
 
-  explanation:
+  explanations:
     post:
       requestBody:
         content:
@@ -339,7 +339,7 @@ components:
       properties:
         evaluation:
           $ref: '#/components/schemas/evaluationAnalysis'
-        explanation:
+        explanations:
           $ref: '#/components/schemas/explanationAnalysis'
       type: object
 
@@ -355,8 +355,10 @@ components:
       properties:
         callbackUrl:
           $ref: '#/components/schemas/basicUrl'
-        explanationType:
-          $ref: '#/components/schemas/explanationType'
+        explanationTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/explanationType'
       required:
         - callbackUrl
         - explanationType
@@ -382,11 +384,14 @@ components:
       type: object
 
     explanationPayload:
-      discriminator:
-        propertyName: explanationDim
-      oneOf:
-        - $ref: '#/components/schemas/explanationAffective'
-        - $ref: '#/components/schemas/explanationDanger'
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/explanationAffective'
+          - $ref: '#/components/schemas/explanationDanger'
+        discriminator:
+          propertyName: explanationDim
+
 
     evaluationPayload:
       properties:

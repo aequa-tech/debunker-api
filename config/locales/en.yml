@@ -7,12 +7,14 @@ en:
         json/parser_error: "Invalid JSON"
         rest_client/exception_with_response: "The service responded with an error"
         rest_client/exceptions/read_timeout: "The service did not respond in time"
+        rest_client/method_not_allowed: "The method is not allowed"
       scrape:
         queued: "The request has been accepted and will be processed."
         error:
           no_tokens: "No tokens available to query the service"
           missing_params: "Missing parameters: %{params}"
           protocol: "The provided link must start with http:// or https://"
+          evaluation: "Error during content analysis"
       api_key:
         error:
           missings: "Missing Api / Secret keys"
@@ -30,12 +32,13 @@ en:
           analysis_types_invalid: "Analysis type is not in a valid format"
           content_language_length: "Content language must be 2 characters long"
           content_language_invalid: "Content language is not supported"
-          evaluation_or_explanation: "At least one of 'evaluation' and 'explanation' must be present"
+          evaluation_or_explanations: "At least one of 'evaluation' and 'explanations' must be present"
           evaluation_callback_blank: "Evaluation callback address can't be blank"
           evaluation_callback_invalid: "Evaluation callback address is not valid"
-          explanation_callback_blank: "Explanation callback address can't be blank"
-          explanation_callback_invalid: "Explanation callback address is not valid"
-          explanation_explanation_type_blank: "Explanation type can't be blank"
+          explanations_callback_blank: "Explanation callback address can't be blank"
+          explanations_callback_invalid: "Explanation callback address is not valid"
+          explanations_explanation_types_blank: "Explanation types can't be blank"
+          explanations_explanation_types_invalid: "Explanation types is not in a valid format"
           invalid_json: "The payload is not a valid JSON"
           invalid_url: "The provided analysis URL is not valid"
           max_chars_invalid: "The value of 'max_chars' is not valid"

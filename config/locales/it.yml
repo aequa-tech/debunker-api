@@ -7,12 +7,14 @@ it:
         json/parser_error: "JSON non valido"
         rest_client/exception_with_response: "Il servizio ha risposto con un errore"
         rest_client/exceptions/read_timeout: "Il servizio non ha risposto in tempo"
+        rest_client/method_not_allowed: "Il metodo non è permesso"
       scrape:
         queued: "La richiesta è stata accettata e verrà processata."
         error:
           no_tokens: "Nessun token disponibile per interrogare il servizio"
           missing_params: "Parametri mancanti: %{params}"
           protocol: "Il link fornito deve iniziare con http:// o https://"
+          evaluation: "Errore durante l'analisi del contenuto"
       api_key:
         error:
           missings: "Chiavi Api / Secret mancanti"
@@ -30,12 +32,13 @@ it:
           analysis_types_invalid: "Il tipo di analisi non è in un formato valido"
           content_language_length: "La lingua del contenuto deve essere di 2 caratteri"
           content_language_invalid: "La lingua del contenuto non è supportata"
-          evaluation_or_explanation: "Almeno uno tra 'evaluation' e 'explanation' deve essere presente"
+          evaluation_or_explanations: "Almeno uno tra 'evaluation' e 'explanations' deve essere presente"
           evaluation_callback_blank: "L'indirizzo  callback 'evaluation' non può essere vuoto"
           evaluation_callback_invalid: "L'indirizzo callback 'evaluation' non è valido"
-          explanation_callback_blank: "L'indirizzo callback 'explanation' non può essere vuoto"
-          explanation_callback_invalid: "L'indirizzo callback 'explanation' non è valido"
-          explanation_explanation_type_blank: "Il tipo explanation non può essere vuoto"
+          explanations_callback_blank: "L'indirizzo callback 'explanations' non può essere vuoto"
+          explanations_callback_invalid: "L'indirizzo callback 'explanations' non è valido"
+          explanations_explanation_types_blank: "I tipi explanations non possono essere vuoti"
+          explanations_explanation_types_invalid: "I tipi explanations non sono in un formato valido"
           invalid_json: "Il payload non è un JSON valido"
           invalid_url: "L'indirizzo fornito per l'analisi non è valido"
           max_chars_invalid: "Il valore di 'max_chars' non è valido"
