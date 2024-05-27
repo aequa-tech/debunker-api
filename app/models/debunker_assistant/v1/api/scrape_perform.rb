@@ -32,7 +32,7 @@ module DebunkerAssistant
         private
 
         def llm_scrape
-          response = RestClient.post([@base_url, 'scrape'].join('/') + "?inputUrl=#{CGI.escape(@incoming_payload.url)}", {})
+          response = RestClient.post([@base_url, 'scrape'].join('/') + "?#{scrape_params}", {})
           payload = parse_json(response.body)
           return payload[:result][:request_id] if success_status?(payload[:status])
 
@@ -121,6 +121,16 @@ module DebunkerAssistant
           end
 
           complete
+        end
+
+        def scrape_params
+          params = ["inputUrl=#{@incoming_payload.url}"]
+          params << ["language=#{@incoming_payload.content_language}"]
+          params << ["retry=#{@incoming_payload.retry}"]
+          params << ["maxRetries=#{@incoming_payload.max_retries}"]
+          params << ["timeout=#{@incoming_payload.timeout}"]
+          params << ["maxChars=#{@incoming_payload.max_chars}"]
+          params.join('&')
         end
 
         def evaluation_params(request_id)
