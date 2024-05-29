@@ -60,21 +60,30 @@ paths:
               $ref: "#/components/headers/Content-Type"
             Content-Length:
               $ref: "#/components/headers/Content-Length"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Reset:
-              $ref: "#/components/headers/X-RateLimit-Reset"
 
         "401":
-          $ref: "#/components/responses/unauthorized"
-
-        "429":
-          $ref: "#/components/responses/tooManyRequests"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notValidResponse'
+          description: Your request cannot be authenticated.
+          headers:
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
 
         "500":
-          $ref: "#/components/responses/error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notValidResponse'
+          description: There were problems processing the request
+          headers:
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+            Content-Type:
+              $ref: '#/components/headers/Content-Type'
 
   /scrape:
     post:
@@ -163,13 +172,12 @@ webhooks:
                   enum: [evaluation]
                 data:
                   oneOf:
-                    - $ref: "#/components/schemas/notValidResponse"
+                    - $ref: "#/components/schemas/notValidEvaluation"
                     - $ref: "#/components/schemas/evaluationPayload"
                   discriminator:
                     propertyName: status
               required:
                 - url
-                - status
                 - analysisType
                 - data
 
@@ -375,6 +383,12 @@ components:
       type: object
 
     notValidResponse:
+      type: object
+      properties:
+        message:
+          $ref: '#/components/schemas/errorMessage'
+
+    notValidEvaluation:
       type: object
       properties:
         message:

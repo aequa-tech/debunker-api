@@ -19,6 +19,9 @@ module DebunkerAssistant
 
         def prepare_context
           context.token = Token.find_by(value: context.token_value)
+          return if context.token.present?
+
+          context.fail!(message: I18n.t('api.messages.errors.fatal'), status: :internal_server_error)
         end
       end
     end
