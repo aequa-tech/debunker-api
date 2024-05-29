@@ -55,7 +55,7 @@ module DebunkerAssistant
             return
           end
 
-          evaluation_status = evaluation_complete?(payload) ? 200 : incomplete_status
+          evaluation_status = response.code == incomplete_status ? incomplete_status : 200
           store_evaluation_success(payload[:analysisId], payload.except(:analysisId), evaluation_status)
         rescue Errno::ECONNREFUSED,
                RestClient::ExceptionWithResponse,
@@ -74,8 +74,21 @@ module DebunkerAssistant
               next
             end
 
+            if explanation_type == 'explanationNetworkAnalysis'
+              store_sxplanation_success(explanation_type, { message: 'Network analysis is yet implemented' }, 200)
+              next
+            end
+
             response = RestClient.get([@base_url, 'explanations'].join('/') +
                                       "?#{explanations_params(@support_response_object[:evaluation][:analysis_id], explanation_type)}")
+
+            # Do a retry in case of Fast API timeout
+            # Waiting for Fast API timeout bug to be fixed
+            if response.code == 500
+              response = RestClient.get([@base_url, 'explanations'].join('/') +
+                                        "?#{explanations_params(@support_response_object[:evaluation][:analysis_id], explanation_type)}")
+            end
+
             payload = parse_json(response.body)
 
             unless payload.is_a?(Hash) && response.code == 200
@@ -159,18 +172,6 @@ module DebunkerAssistant
             success_status?(@support_response_object[analysis_type][:analysis_status])
           end.all?
           success ? :success : :failure
-        end
-
-        def evaluation_complete?(payload)
-          complete = true
-
-          payload.except(:analysisId).each_key do |key|
-            next unless complete
-
-            complete = success_status?(payload[key][:status])
-          end
-
-          complete
         end
 
         def scrape_params
