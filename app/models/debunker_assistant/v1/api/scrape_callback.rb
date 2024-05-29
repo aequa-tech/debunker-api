@@ -46,7 +46,7 @@ module DebunkerAssistant
           {
             url: @incoming_payload.url,
             status: @support_response_object[type][:analysis_status],
-            token: @token.value,
+            analysisType: type.to_s,
             data: @support_response_object[type][:data]
           }
         end
