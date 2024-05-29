@@ -158,9 +158,6 @@ webhooks:
               properties:
                 url:
                   $ref: "#/components/schemas/basicUrl"
-                status:
-                  type: integer
-                  description: Indicates the status of the scrape request made.
                 analysisType:
                   type: string
                   enum: [evaluation]
@@ -186,20 +183,13 @@ webhooks:
               properties:
                 url:
                   $ref: "#/components/schemas/basicUrl"
-                status:
-                  type: integer
                 analysisType:
                   type: string
                   enum: [explanation]
                 data:
-                  oneOf:
-                    - $ref: "#/components/schemas/notValidResponse"
-                    - $ref: "#/components/schemas/explanationPayload"
-                  discriminator:
-                    propertyName: status
+                  $ref: "#/components/schemas/explanationPayload"
               required:
                 - url
-                - status
                 - analysisType
                 - data
 
@@ -334,6 +324,14 @@ components:
       name: X-API-Secret
 
   schemas:
+    errorMessage:
+      type: string
+      description: A text message describing an error
+
+    status:
+      type: integer
+      description: Indicates the status of the response datas.
+
     analysisTypes:
       minProperties: 1
       properties:
@@ -367,36 +365,55 @@ components:
     requestResponse:
       properties:
         message:
-          description: A text message describing the response.
-          type: string
+          description: A message that describe the response
+          $ref: '#/components/schemas/errorMessage'
         url:
           description: The url provided for analysis.
-          type: string
+          $ref: '#/components/schemas/basicUrl'
       required:
         - message
       type: object
 
     notValidResponse:
+      type: object
       properties:
         message:
-          description: A text message describing the response.
-          type: string
+          $ref: '#/components/schemas/errorMessage'
+        status:
+          $ref: '#/components/schemas/status'
+
+    notValidExplanation:
       type: object
+      properties:
+        explanationDim:
+          $ref: "#/components/schemas/explanationType"
+        message:
+          $ref: '#/components/schemas/errorMessage'
+        status:
+          $ref: '#/components/schemas/status'
+
+    responseExplanation:
+      type: object
+      properties:
+        explanationDim:
+          $ref: "#/components/schemas/explanationType"
+        data:
+          $ref: '#/components/schemas/explanation'
+        status:
+          $ref: '#/components/schemas/status'
+
 
     explanationPayload:
       type: array
       items:
         oneOf:
-          - $ref: '#/components/schemas/explanationAffective'
-          - $ref: '#/components/schemas/explanationDanger'
+          - $ref: '#/components/schemas/notValidExplanation'
+          - $ref: '#/components/schemas/responseExplanation'
         discriminator:
-          propertyName: explanationDim
-
+          propertyName: status
 
     evaluationPayload:
       properties:
-        analysisId:
-          $ref: "#/components/schemas/id"
         informalStyle:
           $ref: "#/components/schemas/informalStyle"
         readability:
@@ -407,6 +424,8 @@ components:
           $ref: "#/components/schemas/affectiveStyle"
         dangerousStyle:
           $ref: "#/components/schemas/dangerousStyle"
+        status:
+          $ref: "#/components/schemas/status"
       type: object
 
     user:
@@ -988,6 +1007,10 @@ components:
         - $ref: "#/components/schemas/explanationNetworkAnalysis"
       discriminator:
         propertyName: explanationDim
+        mapping:
+          explanationAffective: "#/components/schemas/explanationAffective"
+          explanationDanger: "#/components/schemas/explanationDanger"
+          explanationNetworkAnalysis: "#/components/schemas/explanationNetworkAnalysis"
 
     explanationType:
       description: explanation
@@ -999,8 +1022,3 @@ components:
             - explanationAffective
             - explanationDanger
             - explanationNetworkAnalysis
-
-    errorMessage:
-      type: string
-      maxLength: 256
-      description: A text message describing an error

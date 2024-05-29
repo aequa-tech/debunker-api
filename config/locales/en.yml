@@ -8,6 +8,7 @@ en:
         rest_client/exception_with_response: "The service responded with an error"
         rest_client/exceptions/read_timeout: "The service did not respond in time"
         rest_client/method_not_allowed: "The method is not allowed"
+        rest_client/internal_server_error: "Service internal error"
       scrape:
         queued: "The request has been accepted and will be processed."
         error:

@@ -75,20 +75,12 @@ module DebunkerAssistant
             end
 
             if explanation_type == 'explanationNetworkAnalysis'
-              store_sxplanation_success(explanation_type, { message: 'Network analysis is yet implemented' }, 200)
+              store_explanations_fail(explanation_type, 'Network analysis not yet implemented', 501)
               next
             end
 
             response = RestClient.get([@base_url, 'explanations'].join('/') +
                                       "?#{explanations_params(@support_response_object[:evaluation][:analysis_id], explanation_type)}")
-
-            # Do a retry in case of Fast API timeout
-            # Waiting for Fast API timeout bug to be fixed
-            if response.code == 500
-              response = RestClient.get([@base_url, 'explanations'].join('/') +
-                                        "?#{explanations_params(@support_response_object[:evaluation][:analysis_id], explanation_type)}")
-            end
-
             payload = parse_json(response.body)
 
             unless payload.is_a?(Hash) && response.code == 200
@@ -100,7 +92,7 @@ module DebunkerAssistant
               next
             end
 
-            store_explanations_success(explanation_type, payload)
+            store_explanations_success(explanation_type, payload.except('explanationDim'))
           rescue Errno::ECONNREFUSED,
                  RestClient::ExceptionWithResponse,
                  RestClient::Exceptions::ReadTimeout,
@@ -122,7 +114,7 @@ module DebunkerAssistant
 
         def store_evaluation_success(analysis_id, data, status)
           @support_response_object[:evaluation][:analysis_id] = analysis_id
-          @support_response_object[:evaluation][:data] = data
+          @support_response_object[:evaluation][:data] = data.merge(status:)
           @support_response_object[:evaluation][:analysis_status] = status
           @support_response_object[:evaluation][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
@@ -130,7 +122,7 @@ module DebunkerAssistant
         end
 
         def store_fail(analysis_type, message, status)
-          @support_response_object[analysis_type][:data] = { message: }
+          @support_response_object[analysis_type][:data] = { message:, status: }
           @support_response_object[analysis_type][:analysis_status] = status
           @support_response_object[analysis_type][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
@@ -141,7 +133,7 @@ module DebunkerAssistant
           @support_response_object[:explanations][:data] ||= []
           @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
           @support_response_object[:explanations][:data] << { explanationDim: explanation_type, message:, status: }
-          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status] }.max { |a, b| a <=> b }
+          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status].to_i }.max { |a, b| a <=> b }
           @support_response_object[:explanations][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
           false
@@ -151,7 +143,7 @@ module DebunkerAssistant
           @support_response_object[:explanations][:data] ||= []
           @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
           @support_response_object[:explanations][:data] << { explanationDim: explanation_type, data: payload, status: 200 }
-          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status] }.max { |a, b| a <=> b }
+          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status].to_i }.max { |a, b| a <=> b }
           @support_response_object[:explanations][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
           true

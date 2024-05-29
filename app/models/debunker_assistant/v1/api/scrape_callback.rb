@@ -29,7 +29,8 @@ module DebunkerAssistant
           response = RestClient.post(@incoming_payload.analysis_types[type][:callback_url],
                                      response_payload(type).to_json, content_type: :json, accept: :json)
           @support_response_object[type][:callback_status] = response.code
-        rescue RestClient::ExceptionWithResponse,
+        rescue Errno::ECONNREFUSED,
+               RestClient::ExceptionWithResponse,
                RestClient::Exceptions::ReadTimeout,
                JSON::ParserError => e
           @support_response_object[type][:callback_status] = e.try(:http_code) || 500
@@ -45,7 +46,6 @@ module DebunkerAssistant
         def response_payload(type)
           {
             url: @incoming_payload.url,
-            status: @support_response_object[type][:analysis_status],
             analysisType: type.to_s,
             data: @support_response_object[type][:data]
           }
