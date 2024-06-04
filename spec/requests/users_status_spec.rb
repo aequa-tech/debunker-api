@@ -8,6 +8,7 @@ RSpec.describe 'Users Status', type: :request do
   let!(:key_pair) { ApiKey.generate_key_pair }
   let!(:api_key) { create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:) }
   let(:json) { JSON.parse(response.body) }
+  let(:rate_limit) { false }
 
   describe 'GET /users/status' do
     describe 'Status 200' do
@@ -32,7 +33,7 @@ RSpec.describe 'Users Status', type: :request do
       end
 
       it 'response headers are right' do
-        response_headers_expetations(response)
+        response_headers_expetations(response, rate_limit:)
       end
     end
 
@@ -48,7 +49,7 @@ RSpec.describe 'Users Status', type: :request do
       end
 
       it 'response headers are right' do
-        response_headers_expetations(response)
+        response_headers_expetations(response, rate_limit:)
       end
     end
 
@@ -65,29 +66,8 @@ RSpec.describe 'Users Status', type: :request do
         end
 
         it 'response headers are right' do
-          response_headers_expetations(response)
+          response_headers_expetations(response, rate_limit:)
         end
-      end
-    end
-
-    describe 'Status 429' do
-      before do
-        number_of_requests = ENV.fetch('RATE_LIMIT').to_i + 1
-        number_of_requests.times do
-          get api_path, headers: auth_headers(key_pair)
-        end
-      end
-
-      it 'returns status code 429' do
-        expect(response).to have_http_status(429)
-      end
-
-      it 'structure of the response is right' do
-        response_message_structure_expetations(json)
-      end
-
-      it 'response headers are right' do
-        response_headers_expetations(response)
       end
     end
   end

@@ -66,7 +66,7 @@ module DebunkerAssistant
           return if content_language.blank?
           return if I18n.available_locales.map(&:to_s).include?(content_language)
 
-          errors.add(:content_language, :content_language_invalid)
+          errors.add(:base, :content_language_invalid)
         end
 
         def retry_validation

@@ -57,7 +57,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:url, :url_blank)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :url_blank)).to be_truthy
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:url, :invalid_url)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :invalid_url)).to be_truthy
       end
     end
   end
@@ -81,7 +81,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :analysis_types_blank)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :analysis_types_blank)).to be_truthy
       end
     end
 
@@ -92,7 +92,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :analysis_types_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :analysis_types_invalid)).to be_truthy
       end
     end
   end
@@ -105,7 +105,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :evaluation_or_explanations)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :evaluation_or_explanations)).to be_truthy
       end
     end
   end
@@ -118,7 +118,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :evaluation_callback_blank)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :evaluation_callback_blank)).to be_truthy
       end
     end
 
@@ -142,7 +142,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanations_callback_blank)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :explanations_callback_blank)).to be_truthy
       end
     end
 
@@ -153,7 +153,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanations_callback_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :explanations_callback_invalid)).to be_truthy
       end
     end
 
@@ -164,7 +164,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanations_explanation_types_blank)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :explanations_explanation_types_blank)).to be_truthy
       end
     end
 
@@ -175,7 +175,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:analysis_types, :explanations_explanation_types_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :explanations_explanation_types_invalid)).to be_truthy
       end
     end
   end
@@ -188,7 +188,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:content_language, :content_language_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :content_language_invalid)).to be_truthy
       end
     end
   end
@@ -201,7 +201,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:retry, :retry_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :retry_invalid)).to be_truthy
       end
     end
   end
@@ -214,7 +214,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:max_retries, :max_retries_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :max_retries_invalid)).to be_truthy
       end
     end
 
@@ -225,7 +225,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:max_retries, :max_retries_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :max_retries_invalid)).to be_truthy
       end
     end
   end
@@ -238,7 +238,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:timeout, :timeout_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :timeout_invalid)).to be_truthy
       end
     end
 
@@ -249,7 +249,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:timeout, :timeout_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :timeout_invalid)).to be_truthy
       end
     end
   end
@@ -262,7 +262,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:max_chars, :max_chars_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :max_chars_invalid)).to be_truthy
       end
     end
 
@@ -273,7 +273,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
       end
 
       it 'error is added' do
-        expect(scrape_payload.errors.added?(:max_chars, :max_chars_invalid)).to be_truthy
+        expect(scrape_payload.errors.added?(:base, :max_chars_invalid)).to be_truthy
       end
     end
   end
