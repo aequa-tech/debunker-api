@@ -193,7 +193,7 @@ webhooks:
                   $ref: "#/components/schemas/basicUrl"
                 analysisType:
                   type: string
-                  enum: [explanation]
+                  enum: [explanations]
                 data:
                   $ref: "#/components/schemas/explanationPayload"
               required:

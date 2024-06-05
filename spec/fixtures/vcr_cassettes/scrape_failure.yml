@@ -1,0 +1,33 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.v1.test.com/internal/v1/scrape?inputUrl=https://www.google.com&language=en&maxChars=1000&maxRetries=3&retry=true&timeout=10
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Wed, 05 Jun 2024 15:20:39 GMT
+      Server:
+      - uvicorn
+      Content-Length: '21'
+      Content-Type: text/plain; charset=utf-8
+      Via:
+      - 1.1 api.v1.test.com (Apache/2.4.52)
+    body:
+      encoding: UTF-8
+      string: Internal Server Error
+  recorded_at: Wed, 05 Jun 2024 15:20:39 GMT
+recorded_with: VCR 6.2.0

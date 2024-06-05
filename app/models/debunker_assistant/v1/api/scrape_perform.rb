@@ -11,8 +11,7 @@ module DebunkerAssistant
         attr_reader :payload
 
         def initialize(payload, token_value)
-          @base_url = ENV.fetch('DEBUNKER_API_V1_URL')
-
+          set_base_uri_parts
           @incoming_payload = ::DebunkerAssistant::V1::Api::ScrapePayload.new(payload)
           @token = Token.find_by(value: token_value)
           @support_response_object = init_support_response_object(@incoming_payload, @token)
@@ -32,11 +31,13 @@ module DebunkerAssistant
         private
 
         def llm_scrape
-          response = RestClient.post([@base_url, 'scrape'].join('/') + "?#{scrape_params}", {})
+          response = post_call([@base_path, 'scrape'].join('/').gsub('//', '/') + "?#{scrape_params}", {})
           payload = parse_json(response.body)
+
+          return store_fail_all(payload, response.code.to_i) unless payload.is_a?(Hash)
           return payload[:result][:request_id] if success_status?(payload[:status])
 
-          payload.is_a?(Hash) ? store_fail_all(payload[:message], payload[:status] || 500) : store_fail_all(payload, 500)
+          store_fail_all(payload[:message], payload[:status] || 500)
         rescue Errno::ECONNREFUSED,
                RestClient::ExceptionWithResponse,
                RestClient::Exceptions::ReadTimeout,
@@ -47,15 +48,13 @@ module DebunkerAssistant
         def llm_evaluation
           return if must_skip_analysis?(:evaluation)
 
-          response = RestClient.get([@base_url, 'evaluation'].join('/') + "?#{evaluation_params(@request_id)}")
+          response = get_call([@base_path, 'evaluation'].join('/').gsub('//', '/') + "?#{evaluation_params(@request_id)}")
           payload = parse_json(response.body)
 
-          unless payload.is_a?(Hash) && payload[:analysisId]
-            payload.is_a?(Hash) ? store_fail(:evaluation, payload[:message], payload[:status] || 500) : store_fail(:evaluation, payload, 500)
-            return
-          end
+          return store_fail(:evaluation, payload, response.code.to_i) unless payload.is_a?(Hash)
+          return store_fail(:evaluation, payload[:message], payload[:status] || 500) unless payload[:analysisId]
 
-          evaluation_status = response.code == incomplete_status ? incomplete_status : 200
+          evaluation_status = response.code.to_i == incomplete_status ? incomplete_status : 200
           store_evaluation_success(payload[:analysisId], payload.except(:analysisId), evaluation_status)
         rescue Errno::ECONNREFUSED,
                RestClient::ExceptionWithResponse,
@@ -75,20 +74,22 @@ module DebunkerAssistant
             end
 
             if explanation_type == 'explanationNetworkAnalysis'
-              store_explanations_fail(explanation_type, 'Network analysis not yet implemented', 501)
+              store_explanations_fail(explanation_type, '', 501)
               next
             end
 
-            response = RestClient.get([@base_url, 'explanations'].join('/') +
-                                      "?#{explanations_params(@support_response_object[:evaluation][:analysis_id], explanation_type)}")
+            response = get_call([@base_path, 'explanations'].join('/').gsub('//', '/') +
+                                "?#{explanations_params(@support_response_object[:evaluation][:analysis_id],
+                                explanation_type)}")
             payload = parse_json(response.body)
 
-            unless payload.is_a?(Hash) && response.code == 200
-              if payload.is_a?(Hash)
-                store_explanations_fail(explanation_type, payload[:message], payload[:status] || 500)
-              else
-                store_fail(explanation_type, payload, 500)
-              end
+            unless payload.is_a?(Hash)
+              store_explanations_fail(explanation_type, payload, response.code.to_i)
+              next
+            end
+
+            unless success_status?(response.code.to_i)
+              store_explanations_fail(explanation_type, payload[:message], payload[:status] || 500)
               next
             end
 
@@ -122,6 +123,8 @@ module DebunkerAssistant
         end
 
         def store_fail(analysis_type, message, status)
+          message = Rack::Utils::HTTP_STATUS_CODES[status] if message.blank?
+
           @support_response_object[analysis_type][:data] = { message:, status: }
           @support_response_object[analysis_type][:analysis_status] = status
           @support_response_object[analysis_type][:callback_status] = 0
@@ -130,6 +133,13 @@ module DebunkerAssistant
         end
 
         def store_explanations_fail(explanation_type, message, status = 500)
+          if explanation_type == 'explanationNetworkAnalysis'
+            message = 'Network analysis not yet implemented'
+            status = 501
+          end
+
+          message = Rack::Utils::HTTP_STATUS_CODES[status] if message.blank?
+
           @support_response_object[:explanations][:data] ||= []
           @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
           @support_response_object[:explanations][:data] << { explanationDim: explanation_type, message:, status: }
@@ -150,9 +160,13 @@ module DebunkerAssistant
         end
 
         def store_fail_all(message, status)
-          @incoming_payload.analysis_types.each_key do |analysis_type|
-            store_fail(analysis_type, message, status)
+          store_fail(:evaluation, message, status)
+          return false if @incoming_payload.analysis_types[:explanations].blank?
+
+          @incoming_payload.analysis_types[:explanations][:explanation_types].each do |explanation_type|
+            store_explanations_fail(explanation_type, message, status)
           end
+
           false
         end
 

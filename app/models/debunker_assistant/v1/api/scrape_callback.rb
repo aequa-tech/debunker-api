@@ -21,6 +21,12 @@ module DebunkerAssistant
           callback_outcome
         end
 
+        def check_callback_payload(type)
+          raise NotImplementedError unless Rails.env.test?
+
+          response_payload(type)
+        end
+
         private
 
         def perform_callback(type)

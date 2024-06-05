@@ -12,7 +12,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapePayload, type: :model do
         },
         explanations: {
           callback_url: 'https://example.com/explanations',
-          explanation_types: ['affectiveStyle']
+          explanation_types: ['explanationAffective']
         }
       },
       content_language: 'en',
