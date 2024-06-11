@@ -19,17 +19,18 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 05 Jun 2024 15:20:39 GMT
+      - Tue, 11 Jun 2024 12:18:06 GMT
       Server:
       - uvicorn
       Content-Length:
-      - '262'
-      Content-Type:
-      - application/json
+      - '269'
       Via:
       - 1.1 api.v1.test.com (Apache/2.4.52)
     body:
       encoding: UTF-8
-      string: '{"positive":{"token":"","probability":0.0},"negative":{"token":"Google","probability":0.0},"sadness":{"token":"","probability":0.0},"fear":{"token":"Google","probability":0.017},"joy":{"token":"Google","probability":0.001},"anger":{"token":"","probability":0.0}}'
-  recorded_at: Wed, 05 Jun 2024 15:20:40 GMT
+      string: '{"positive": {"token": "", "probability": 0.0}, "negative": {"token":
+        "", "probability": 0.0}, "sadness": {"token": "", "probability": 0.0}, "fear":
+        {"token": "", "probability": 0.0}, "joy": {"token": "", "probability": 0.0},
+        "anger": {"token": "", "probability": 0.0}}'
+  recorded_at: Tue, 11 Jun 2024 12:18:07 GMT
 recorded_with: VCR 6.2.0

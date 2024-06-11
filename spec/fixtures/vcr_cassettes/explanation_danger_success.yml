@@ -15,23 +15,20 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Wed, 05 Jun 2024 15:20:39 GMT
+      - Tue, 11 Jun 2024 12:18:06 GMT
       Server:
       - uvicorn
       Content-Length:
-      - '21'
-      Content-Type:
-      - text/plain; charset=utf-8
+      - '137'
       Via:
       - 1.1 api.v1.test.com (Apache/2.4.52)
-      Connection:
-      - close
     body:
       encoding: UTF-8
-      string: Internal Server Error
-  recorded_at: Wed, 05 Jun 2024 15:20:40 GMT
+      string: '{"flame": {"token": "", "probability": 0.0}, "stereotype": {"token":
+        "", "probability": 0.0}, "irony": {"token": "", "probability": 0.0}}'
+  recorded_at: Tue, 11 Jun 2024 12:18:07 GMT
 recorded_with: VCR 6.2.0

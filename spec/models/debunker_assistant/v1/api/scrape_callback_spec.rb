@@ -31,8 +31,12 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
   end
 
   evaluation_structure = {
+    'analysis_id' => '',
     'informalStyle' => {
-      'overallScore' => '',
+      'overallScore' => {
+        'title' => '',
+        'content' => ''
+      },
       'disaggregated' => {
         'secondPerson' => {
           'title' => {
@@ -70,7 +74,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
             'global' => ''
           }
         },
-        'shortened' => {
+        'shortenedForms' => {
           'title' => {
             'absolute' => '',
             'local' => '',
@@ -118,6 +122,18 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
             'global' => ''
           },
         },
+        'repeatedLetters' => {
+          'title' => {
+            'absolute' => '',
+            'local' => '',
+            'global' => ''
+          },
+          'content' => {
+            'absolute' => '',
+            'local' => '',
+            'global' => ''
+          }
+        },
         'aggressivePunctuation' => {
           'title' => {
             'absolute' => '',
@@ -157,7 +173,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
       }
     },
     'readability' => {
-      'overallScore' => '',
+      'overallScore' => {
+        'title' => '',
+        'content' => ''
+      },
       'disaggregated' => {
         'fleshReadingEase' => {
           'title' => {
@@ -174,10 +193,18 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
       }
     },
     'clickBait' => {
-      'overallScore' => '',
+      'overallScore' => {
+        'title' => '',
+        'content' => ''
+      },
       'disaggregated' => {
         'misleadingHeadline' => {
           'title' => {
+            'absolute' => '',
+            'local' => '',
+            'global' => ''
+          },
+          'content' => {
             'absolute' => '',
             'local' => '',
             'global' => ''
@@ -186,7 +213,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
       }
     },
     'affectiveStyle' => {
-      'overallScore' => '',
+      'overallScore' => {
+        'title' => '',
+        'content' => ''
+      },
       'disaggregated' => {
         'positiveSentiment' => {
           'title' => {
@@ -263,9 +293,11 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
       }
     },
     'dangerousStyle' => {
-      'overallScore' => '',
+      'overallScore' => {
+        'title' => '',
+        'content' => ''
+      },
       'disaggregated' => {
-        'overallScore' => '',
         'irony' => {
           'title' => {
             'absolute' => '',
@@ -304,6 +336,18 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
         }
       }
     },
+    'untrustability' => {
+      'overallScore' => '',
+      'disaggregated' => {
+        'labelPropagation' => {
+          'values' => {
+            'absolute' => '',
+            'local' => '',
+            'global' => ''
+          }
+        }
+      }
+    },
     'status' => ''
   }
 
@@ -335,15 +379,15 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
   }
 
   explanation_danger_structure = {
-    'explanationFlame' => {
+    'flame' => {
       'token' => '',
       'probability' => ''
     },
-    'explanationStereotype' => {
+    'stereotype' => {
       'token' => '',
       'probability' => ''
     },
-    'explanationIrony' => {
+    'irony' => {
       'token' => '',
       'probability' => ''
     }

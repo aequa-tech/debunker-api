@@ -34,10 +34,10 @@ module DebunkerAssistant
           response = post_call([@base_path, 'scrape'].join('/').gsub('//', '/') + "?#{scrape_params}", {})
           payload = parse_json(response.body)
 
-          return store_fail_all(payload, response.code.to_i) unless payload.is_a?(Hash)
-          return payload[:result][:request_id] if success_status?(payload[:status])
+          return store_fail_all(payload, response.code) unless payload.is_a?(Hash)
+          return payload[:request_id] if success_status?(response.code)
 
-          store_fail_all(payload[:message], payload[:status] || 500)
+          store_fail_all(payload[:message], response.code || 500)
         rescue Errno::ECONNREFUSED,
                RestClient::ExceptionWithResponse,
                RestClient::Exceptions::ReadTimeout,
@@ -51,11 +51,11 @@ module DebunkerAssistant
           response = get_call([@base_path, 'evaluation'].join('/').gsub('//', '/') + "?#{evaluation_params(@request_id)}")
           payload = parse_json(response.body)
 
-          return store_fail(:evaluation, payload, response.code.to_i) unless payload.is_a?(Hash)
-          return store_fail(:evaluation, payload[:message], payload[:status] || 500) unless payload[:analysisId]
+          return store_fail(:evaluation, payload, response.code) unless payload.is_a?(Hash)
+          return store_fail(:evaluation, payload[:message], response.code || 500) unless payload[:analysis_id]
 
           evaluation_status = response.code.to_i == incomplete_status ? incomplete_status : 200
-          store_evaluation_success(payload[:analysisId], payload.except(:analysisId), evaluation_status)
+          store_evaluation_success(payload[:analysis_id], payload, evaluation_status)
         rescue Errno::ECONNREFUSED,
                RestClient::ExceptionWithResponse,
                RestClient::Exceptions::ReadTimeout,
@@ -84,12 +84,12 @@ module DebunkerAssistant
             payload = parse_json(response.body)
 
             unless payload.is_a?(Hash)
-              store_explanations_fail(explanation_type, payload, response.code.to_i)
+              store_explanations_fail(explanation_type, payload, response.code)
               next
             end
 
-            unless success_status?(response.code.to_i)
-              store_explanations_fail(explanation_type, payload[:message], payload[:status] || 500)
+            unless success_status?(response.code)
+              store_explanations_fail(explanation_type, payload[:message], response.code || 500)
               next
             end
 
@@ -116,7 +116,7 @@ module DebunkerAssistant
         def store_evaluation_success(analysis_id, data, status)
           @support_response_object[:evaluation][:analysis_id] = analysis_id
           @support_response_object[:evaluation][:data] = data.merge(status:)
-          @support_response_object[:evaluation][:analysis_status] = status
+          @support_response_object[:evaluation][:analysis_status] = status.to_i
           @support_response_object[:evaluation][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
           true
@@ -126,7 +126,7 @@ module DebunkerAssistant
           message = Rack::Utils::HTTP_STATUS_CODES[status] if message.blank?
 
           @support_response_object[analysis_type][:data] = { message:, status: }
-          @support_response_object[analysis_type][:analysis_status] = status
+          @support_response_object[analysis_type][:analysis_status] = status.to_i
           @support_response_object[analysis_type][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
           false
@@ -142,7 +142,7 @@ module DebunkerAssistant
 
           @support_response_object[:explanations][:data] ||= []
           @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
-          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, message:, status: }
+          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, message:, status: status.to_i }
           @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status].to_i }.max { |a, b| a <=> b }
           @support_response_object[:explanations][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
@@ -160,11 +160,11 @@ module DebunkerAssistant
         end
 
         def store_fail_all(message, status)
-          store_fail(:evaluation, message, status)
+          store_fail(:evaluation, message, status.to_i)
           return false if @incoming_payload.analysis_types[:explanations].blank?
 
           @incoming_payload.analysis_types[:explanations][:explanation_types].each do |explanation_type|
-            store_explanations_fail(explanation_type, message, status)
+            store_explanations_fail(explanation_type, message, status.to_i)
           end
 
           false

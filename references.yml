@@ -180,6 +180,11 @@ webhooks:
                 - url
                 - analysisType
                 - data
+            examples:
+              success:
+                $ref: "#/components/examples/evaluationSuccess"
+              failure:
+                $ref: "#/components/examples/evaluationFailure"
 
   explanations:
     post:
@@ -200,6 +205,13 @@ webhooks:
                 - url
                 - analysisType
                 - data
+            examples:
+              success:
+                $ref: "#/components/examples/explanationAllSuccess"
+              complete_failure:
+                $ref: "#/components/examples/explanationAllFailure"
+              at_least_one_failure:
+                $ref: "#/components/examples/explanationOneFailure"
 
 components:
   headers:
@@ -427,7 +439,11 @@ components:
           propertyName: status
 
     evaluationPayload:
+      type: object
+      description: description
       properties:
+        analysis_id:
+          $ref: "#/components/schemas/id"
         informalStyle:
           $ref: "#/components/schemas/informalStyle"
         readability:
@@ -438,9 +454,10 @@ components:
           $ref: "#/components/schemas/affectiveStyle"
         dangerousStyle:
           $ref: "#/components/schemas/dangerousStyle"
+        untrustability:
+          $ref: "#/components/schemas/untrustability"
         status:
           $ref: "#/components/schemas/status"
-      type: object
 
     user:
       properties:
@@ -467,11 +484,17 @@ components:
       type: string
       description: an unique id used for handling next APIs requests
 
+    scrapeOutput:
+      type: object
+      properties:
+        request_id:
+          $ref: "#/components/schemas/id"
+
     language:
-      default: en
       description: the language of the article that you want to analyze. Actually you can choose between Italian (it) and English (en)
       type: string
       enum: [it,en]
+      default: en
 
     retry:
       description: choose if you want to retry the call to the API. Default is false
@@ -501,6 +524,7 @@ components:
       format: int32
       description: a categorical representation of a feature
 
+
     scoreType1:
       type: number
       format: float
@@ -523,10 +547,17 @@ components:
       type: string
       description: a chunk of text that corresponds to a word or a piece of word
 
+    overallScoreFull:
+      type: object
+      description: the overall score
+      properties:
+        title:
+          $ref: "#/components/schemas/scoreType1"
+        content:
+          $ref: "#/components/schemas/scoreType1"
 
     secondPerson:
       type: object
-      summary: the text contains verbs conjugated at the second or first person
       description: it identifies all the occurrences of verbs conjugated at the first or second person
       properties:
         title:
@@ -536,7 +567,6 @@ components:
 
     personalStyle:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -546,7 +576,6 @@ components:
 
     intensifiers:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -556,7 +585,6 @@ components:
 
     shortenedForms:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -566,7 +594,6 @@ components:
 
     modals:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -576,7 +603,6 @@ components:
 
     interrogatives:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -586,7 +612,6 @@ components:
 
     uppercaseWords:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -594,9 +619,17 @@ components:
         content:
           $ref: "#/components/schemas/evaluationOutput"
 
+    repeatedLetters:
+          type: object
+          description: description
+          properties:
+            title:
+              $ref: "#/components/schemas/evaluationOutput"
+            content:
+              $ref: "#/components/schemas/evaluationOutput"
+
     aggressivePunctuation:
       type: object
-      summary: the text contains aggressive punctuation
       description: it identifies the presence of aggressive punctuation in the text
       properties:
         title:
@@ -606,7 +639,6 @@ components:
 
     uncommonPunctuation:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -616,7 +648,6 @@ components:
 
     emoji:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -626,7 +657,6 @@ components:
 
     fleshReadingEase:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -636,15 +666,15 @@ components:
 
     misleadingHeadline:
       type: object
-      summary: summary
       description: description
       properties:
         title:
           $ref: "#/components/schemas/evaluationOutput"
+        content:
+          $ref: "#/components/schemas/evaluationOutput"
 
     negativeSentiment:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -654,7 +684,6 @@ components:
 
     positiveSentiment:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -664,7 +693,6 @@ components:
 
     anger:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -674,7 +702,6 @@ components:
 
     fear:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -684,7 +711,6 @@ components:
 
     joy:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -694,7 +720,6 @@ components:
 
     sadness:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -704,7 +729,6 @@ components:
 
     irony:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -714,7 +738,6 @@ components:
 
     flame:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -724,7 +747,6 @@ components:
 
     stereotype:
       type: object
-      summary: summary
       description: description
       properties:
         title:
@@ -734,10 +756,9 @@ components:
 
     labelPropagation:
       type: object
-      summary: summary
       description: description
       properties:
-        title:
+        values:
           $ref: "#/components/schemas/evaluationOutput"
 
     informalFeatures:
@@ -750,7 +771,7 @@ components:
             $ref: "#/components/schemas/personalStyle"
         intensifiers:
             $ref: "#/components/schemas/intensifiers"
-        shortened:
+        shortenedForms:
           $ref: "#/components/schemas/shortenedForms"
         modals:
             $ref: "#/components/schemas/modals"
@@ -758,6 +779,8 @@ components:
           $ref: "#/components/schemas/interrogatives"
         uppercaseWords:
             $ref: "#/components/schemas/uppercaseWords"
+        repeatedLetters:
+          $ref: "#/components/schemas/repeatedLetters"
         aggressivePunctuation:
           $ref: "#/components/schemas/aggressivePunctuation"
         uncommonPunctuation:
@@ -770,7 +793,7 @@ components:
       description: it returns the informal style score, which is composed of a list of all sub-features and their average
       properties:
         overallScore:
-          $ref: "#/components/schemas/scoreType1"
+          $ref: "#/components/schemas/overallScoreFull"
         disaggregated:
           $ref: "#/components/schemas/informalFeatures"
 
@@ -787,7 +810,7 @@ components:
       description: desc
       properties:
         overallScore:
-          $ref: "#/components/schemas/scoreType1"
+          $ref: "#/components/schemas/overallScoreFull"
         disaggregated:
           $ref: "#/components/schemas/readabilityFeatures"
 
@@ -805,7 +828,7 @@ components:
       description: desc
       properties:
         overallScore:
-          $ref: "#/components/schemas/scoreType1"
+          $ref: "#/components/schemas/overallScoreFull"
         disaggregated:
           $ref: "#/components/schemas/clickBaitFeatures"
 
@@ -832,7 +855,7 @@ components:
       description: desc
       properties:
         overallScore:
-          $ref: "#/components/schemas/scoreType1"
+          $ref: "#/components/schemas/overallScoreFull"
         disaggregated:
           $ref: "#/components/schemas/affectiveFeatures"
 
@@ -841,8 +864,6 @@ components:
       type: object
       description: desc
       properties:
-        overallScore:
-          $ref: "#/components/schemas/scoreType1"
         irony:
           $ref: '#/components/schemas/irony'
         flame:
@@ -855,7 +876,7 @@ components:
       description: desc
       properties:
         overallScore:
-          $ref: "#/components/schemas/scoreType1"
+          $ref: "#/components/schemas/overallScoreFull"
         disaggregated:
           $ref: "#/components/schemas/dangerousFeatures"
 
@@ -881,7 +902,7 @@ components:
       type: object
       description: description
       properties:
-        analysisId:
+        analysis_id:
           $ref: "#/components/schemas/id"
         informalStyle:
           $ref: "#/components/schemas/informalStyle"
@@ -897,7 +918,7 @@ components:
           $ref: "#/components/schemas/untrustability"
 
     explanationFlame:
-      summary: the piece of text that contribute to determine that an article expresses inflammatory contents
+      description: the piece of text that contribute to determine that an article expresses inflammatory contents
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -905,7 +926,7 @@ components:
           $ref: "#/components/schemas/scoreType1"
 
     explanationStereotype:
-      summary: the piece of text that contribute to determine that an article expresses stereotypical contents
+      description: the piece of text that contribute to determine that an article expresses stereotypical contents
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -913,7 +934,7 @@ components:
           $ref: "#/components/schemas/scoreType1"
 
     explanationIrony:
-      summary: the piece of text that contribute to determine that an article expresses ironic contents
+      description: the piece of text that contribute to determine that an article expresses ironic contents
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -923,15 +944,15 @@ components:
     explanationDanger:
       description: all the explanations of dangerous features
       properties:
-        explanationFlame:
+        flame:
           $ref: "#/components/schemas/explanationFlame"
-        explanationStereotype:
+        stereotype:
           $ref: "#/components/schemas/explanationStereotype"
-        explanationIrony:
+        irony:
           $ref: "#/components/schemas/explanationIrony"
 
     explanationAnger:
-      summary: the piece of text that contribute to determine that an article expresses anger
+      description: the piece of text that contribute to determine that an article expresses anger
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -939,7 +960,7 @@ components:
           $ref: "#/components/schemas/scoreType1"
 
     explanationFear:
-      summary: the piece of text that contribute to determine that an article expresses anger
+      description: the piece of text that contribute to determine that an article expresses anger
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -947,7 +968,7 @@ components:
           $ref: "#/components/schemas/scoreType1"
 
     explanationJoy:
-      summary: the piece of text that contribute to determine that an article expresses joy
+      description: the piece of text that contribute to determine that an article expresses joy
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -955,7 +976,7 @@ components:
           $ref: "#/components/schemas/scoreType1"
 
     explanationSadness:
-      summary: the piece of text that contribute to determine that an article expresses sadness
+      description: the piece of text that contribute to determine that an article expresses sadness
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -963,7 +984,7 @@ components:
           $ref: "#/components/schemas/scoreType1"
 
     explanationPositiveSentiment:
-      summary: the piece of text that contribute to determine that an article expresses a positive sentiment
+      description: the piece of text that contribute to determine that an article expresses a positive sentiment
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -971,7 +992,7 @@ components:
           $ref: "#/components/schemas/scoreType1"
 
     explanationNegativeSentiment:
-      summary: the piece of text that contribute to determine that an article expresses a negative sentiment
+      description: the piece of text that contribute to determine that an article expresses a negative sentiment
       properties:
         token:
           $ref: "#/components/schemas/token"
@@ -994,37 +1015,14 @@ components:
         fear:
           $ref: "#/components/schemas/explanationFear"
 
-    nearestUrl:
-      summary: the nearest url
-      properties:
-        token:
-          $ref: "#/components/schemas/basicUrl"
-        probability:
-          $ref: "#/components/schemas/scoreType1"
-
-
-    explanationNetworkAnalysis:
-      summary: all the explanations of network features
-      required:
-        -  explanationType
-      properties:
-        explanationDim:
-          $ref: "#/components/schemas/explanationType"
-        nearestUrl:
-          $ref: "#/components/schemas/nearestUrl"
 
 
     explanation:
       oneOf:
         - $ref: "#/components/schemas/explanationAffective"
         - $ref: "#/components/schemas/explanationDanger"
-        - $ref: "#/components/schemas/explanationNetworkAnalysis"
       discriminator:
         propertyName: explanationDim
-        mapping:
-          explanationAffective: "#/components/schemas/explanationAffective"
-          explanationDanger: "#/components/schemas/explanationDanger"
-          explanationNetworkAnalysis: "#/components/schemas/explanationNetworkAnalysis"
 
     explanationType:
       description: explanation
@@ -1036,3 +1034,484 @@ components:
             - explanationAffective
             - explanationDanger
             - explanationNetworkAnalysis
+
+    statusMessage:
+      type: string
+      maxLength: 256
+      description: A text message describing an error
+
+  examples:
+    evaluationFailure:
+      value:
+        {
+          "url": "https://www.google.com",
+          "analysisType": "evaluation",
+          "data": {
+            "message": "Internal Server Error",
+            "status": 500
+          }
+        }
+    evaluationSuccess:
+      value:
+        {
+          "url": "https://www.google.com",
+          "analysisType": "evaluation",
+          "data": {
+            "analysis_id": "8ffdefbdec956b595d257f0aaeefd623",
+            "informalStyle": {
+              "disaggregated": {
+                "secondPerson": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "personalStyle": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "intensifiers": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "shortenedForms": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "modals": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "interrogatives": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "uppercaseWords": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "repeatedLetters": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "aggressivePunctuation": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "uncommonPunctuation": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "emoji": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                }
+              },
+              "overallScore": {
+                "title": 0,
+                "content": 0
+              }
+            },
+            "readability": {
+              "disaggregated": {
+                "fleshReadingEase": {
+                  "title": {
+                    "absolute": 121.22,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 9.21,
+                    "local": 0.8465,
+                    "global": null
+                  }
+                }
+              },
+              "overallScore": {
+                "title": 0,
+                "content": 0.8465
+              }
+            },
+            "clickBait": {
+              "disaggregated": {
+                "misleadingHeadline": {
+                  "title": {
+                    "absolute": 0.38005774017150223,
+                    "local": 0.6199422598284978,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0.38005774017150223,
+                    "local": 0.6199422598284978,
+                    "global": null
+                  }
+                }
+              },
+              "overallScore": {
+                "title": 0.6199422598284978,
+                "content": 0.6199422598284978
+              }
+            },
+            "affectiveStyle": {
+              "disaggregated": {
+                "joy": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "sadness": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "fear": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "anger": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "positiveSentiment": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "negativeSentiment": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                }
+              },
+              "overallScore": {
+                "title": 0,
+                "content": 0
+              }
+            },
+            "dangerousStyle": {
+              "disaggregated": {
+                "irony": {
+                  "title": {
+                    "absolute": 1,
+                    "local": 0.648,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0.062,
+                    "global": null
+                  }
+                },
+                "flame": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0.001,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0,
+                    "global": null
+                  }
+                },
+                "stereotype": {
+                  "title": {
+                    "absolute": 0,
+                    "local": 0.194,
+                    "global": null
+                  },
+                  "content": {
+                    "absolute": 0,
+                    "local": 0.099,
+                    "global": null
+                  }
+                }
+              },
+              "overallScore": {
+                "title": 0.28099999999999997,
+                "content": 0.05366666666666667
+              }
+            },
+            "untrustability": {
+              "disaggregated": {
+                "labelPropagation": {
+                  "values": {
+                    "absolute": 0.292,
+                    "local": 0.292,
+                    "global": null
+                  }
+                }
+              },
+              "overallScore": 0.292
+            },
+            "status": 200
+          }
+        }
+
+    explanationAllSuccess:
+      value:
+        {
+          "url": "https://www.google.com",
+          "analysisType": "explanations",
+          "data": [
+            {
+              "explanationDim": "explanationAffective",
+              "data": {
+                "positive": {
+                  "token": "",
+                  "probability": 0
+                },
+                "negative": {
+                  "token": "",
+                  "probability": 0
+                },
+                "sadness": {
+                  "token": "",
+                  "probability": 0
+                },
+                "fear": {
+                  "token": "",
+                  "probability": 0
+                },
+                "joy": {
+                  "token": "",
+                  "probability": 0
+                },
+                "anger": {
+                  "token": "",
+                  "probability": 0
+                }
+              },
+              "status": 200
+            },
+            {
+              "explanationDim": "explanationDanger",
+              "data": {
+                "flame": {
+                  "token": "",
+                  "probability": 0
+                },
+                "stereotype": {
+                  "token": "",
+                  "probability": 0
+                },
+                "irony": {
+                  "token": "",
+                  "probability": 0
+                }
+              },
+              "status": 200
+            }
+          ]
+        }
+
+    explanationAllFailure:
+      value:
+        {
+          "url": "https://www.google.com",
+          "analysisType": "explanations",
+          "data": [
+            {
+              "explanationDim": "explanationAffective",
+              "message": "Internal Server Error",
+              "status": 500
+            },
+            {
+              "explanationDim": "explanationDanger",
+              "message": "Internal Server Error",
+              "status": 500
+            }
+          ]
+        }
+
+    explanationOneFailure:
+      value:
+        {
+          "url": "https://www.google.com",
+          "analysisType": "explanations",
+          "data": [
+            {
+              "explanationDim": "explanationAffective",
+              "data": {
+                "positive": {
+                  "token": "",
+                  "probability": 0
+                },
+                "negative": {
+                  "token": "",
+                  "probability": 0
+                },
+                "sadness": {
+                  "token": "",
+                  "probability": 0
+                },
+                "fear": {
+                  "token": "",
+                  "probability": 0
+                },
+                "joy": {
+                  "token": "",
+                  "probability": 0
+                },
+                "anger": {
+                  "token": "",
+                  "probability": 0
+                }
+              },
+              "status": 200
+            },
+            {
+              "explanationDim": "explanationDanger",
+              "data": {
+                "flame": {
+                  "token": "",
+                  "probability": 0
+                },
+                "stereotype": {
+                  "token": "",
+                  "probability": 0
+                },
+                "irony": {
+                  "token": "",
+                  "probability": 0
+                }
+              },
+              "status": 200
+            },
+            {
+              "explanationDim": "explanationNetworkAnalysis",
+              "message": "Network analysis not yet implemented",
+              "status": 501
+            }
+          ]
+        }

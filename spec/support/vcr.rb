@@ -59,11 +59,11 @@ RSpec.configure do |config|
     end
 
     failure = YAML.load_file(Rails.root.join('spec', 'fixtures', 'vcr_cassettes', 'evaluation_success.yml')).deep_symbolize_keys
-    failure[:http_interactions].first[:response][:status][:code] = 200
-    failure[:http_interactions].first[:response][:status][:message] = 'OK'
-    failure[:http_interactions].first[:response][:body][:string] = '{"status":404}'
+    failure[:http_interactions].first[:response][:status][:code] = 404
+    failure[:http_interactions].first[:response][:status][:message] = 'string'
+    failure[:http_interactions].first[:response][:body][:string] = 'string'
     failure[:http_interactions].first[:response][:headers]['Content-Type'] = 'text/plain; charset=utf-8'
-    failure[:http_interactions].first[:response][:headers]['Content-Length'] = '{"status":404}'.length.to_s
+    failure[:http_interactions].first[:response][:headers]['Content-Length'] = 'string'.length.to_s
     File.open(Rails.root.join('spec', 'fixtures', 'vcr_cassettes', 'evaluation_failure.yml'), 'w') { |file| file.write(failure.deep_stringify_keys.to_yaml) }
 
     VCR.use_cassette('explanation_affective_success') do
