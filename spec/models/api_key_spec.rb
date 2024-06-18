@@ -66,8 +66,16 @@ RSpec.describe ApiKey, type: :model do
   end
 
   describe 'create a new api key' do
+    before { api_key }
+
     it 'create free tokens' do
       expect(api_key.tokens.available.count).to eq(ENV.fetch('FREE_TOKENS_REGISTRATION').to_i)
+    end
+
+    it 'only one active api key per user' do
+      expect(ApiKey.where(user:).active.count).to eq(1)
+      create(:api_key, user:)
+      expect(ApiKey.where(user:).active.count).to eq(1)
     end
   end
 end
