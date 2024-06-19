@@ -3,10 +3,13 @@
 class ApiKey < ActiveRecord::Base
   before_create :encode_secret
   before_create :expire_all!
-  after_create :generate_free_call_tokens
+  after_create :generate_initial_call_tokens
+  after_update :update_available_tokens_number
 
   belongs_to :user
   has_many :tokens, dependent: :destroy
+
+  attr_writer :available_tokens_number
 
   validates :access_token, presence: true, uniqueness: true
   validates :secret_token, presence: true
@@ -46,6 +49,7 @@ class ApiKey < ActiveRecord::Base
 
   def expire!
     update_columns(expired_at: Time.now)
+    tokens.destroy_all
   end
 
   def expired?
@@ -56,7 +60,33 @@ class ApiKey < ActiveRecord::Base
     tokens.available
   end
 
+  def next_reload_date
+    reloaded_at + user.role.tier.reload_rate_period
+  end
+
   private
+
+  def update_available_tokens_number
+    return if expired?
+    return unless @available_tokens_number
+    return if @available_tokens_number.to_i == tokens.count
+
+    if @available_tokens_number.to_i > tokens.count
+      add_tokens
+    else
+      remove_tokens
+    end
+  end
+
+  def add_tokens
+    token_to_generate = @available_tokens_number.to_i - available_tokens.count
+    generate_call_tokens(token_to_generate)
+  end
+
+  def remove_tokens
+    token_to_destroy = available_tokens.count - @available_tokens_number.to_i
+    available_tokens.last(token_to_destroy).each(&:destroy)
+  end
 
   def generate_call_tokens(count)
     count.times do
@@ -68,12 +98,13 @@ class ApiKey < ActiveRecord::Base
     end
   end
 
-  def generate_free_call_tokens
-    free = ENV.fetch('FREE_TOKENS_REGISTRATION').to_i
-    generate_call_tokens(free)
+  def generate_initial_call_tokens
+    amount = user.role.tier.tokens_rate
+    generate_call_tokens(amount)
+    update_columns(reloaded_at: Date.today)
   end
 
   def expire_all!
-    self.class.where(user_id:).update_all(expired_at: Time.now)
+    self.class.where(user_id:).each(&:expire!)
   end
 end

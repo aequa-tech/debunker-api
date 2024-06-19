@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_18_064142) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_18_153104) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,7 +21,26 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_064142) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "reloaded_at"
     t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
+
+  create_table "roles", force: :cascade do |t|
+    t.string "name"
+    t.integer "role_type"
+    t.bigint "tier_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tier_id"], name: "index_roles_on_tier_id"
+  end
+
+  create_table "tiers", force: :cascade do |t|
+    t.string "name"
+    t.integer "tokens_rate"
+    t.integer "reload_rate_amount"
+    t.string "reload_rate_unit"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "tokens", force: :cascade do |t|
@@ -48,12 +67,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_064142) do
     t.string "unconfirmed_email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "role", default: 0
+    t.bigint "role_id", default: 2, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role_id"], name: "index_users_on_role_id"
   end
 
   add_foreign_key "api_keys", "users"
+  add_foreign_key "roles", "tiers"
   add_foreign_key "tokens", "api_keys"
+  add_foreign_key "users", "roles"
 end

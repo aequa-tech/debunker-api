@@ -19,7 +19,7 @@ RSpec.describe 'Users Status', type: :request do
         expect(json['user']).not_to be_empty
         expect(json['user']['name']).to eq(user.name)
         expect(json['user']['email']).to eq(user.email)
-        expect(json['user']['role']).to eq(user.role)
+        expect(json['user']['role']).to eq(user.role.name)
         expect(json['available_tokens']).to eq(api_key.available_tokens.count)
       end
 

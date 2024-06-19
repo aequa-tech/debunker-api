@@ -7,6 +7,7 @@ RSpec.describe User, type: :model do
 
   describe 'associations' do
     it { should have_many(:api_keys).dependent(:destroy) }
+    it { should belong_to(:role) }
   end
 
   describe 'validations' do
@@ -17,10 +18,6 @@ RSpec.describe User, type: :model do
       expect(new_user).not_to be_valid
     end
     it { should validate_presence_of(:name) }
-  end
-
-  describe 'enum' do
-    it { should define_enum_for(:role).with_values(user: 0, admin: 1) }
   end
 
   describe '#info_attributes' do
@@ -37,9 +34,12 @@ RSpec.describe User, type: :model do
   end
 
   describe '#set_default_role' do
+    before { create(:role, :basic) }
+
     it 'sets the default role to user' do
       new_user = User.new
-      expect(new_user.role).to eq('user')
+      expect(new_user.role.name).to eq('Basic')
+      expect(new_user.role.role_type).to eq('user')
     end
   end
 end
