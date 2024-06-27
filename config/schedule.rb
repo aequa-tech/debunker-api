@@ -3,5 +3,5 @@
 set :chronic_options, hours24: true
 
 every :day, at: '00:10' do
-  runner 'Tier.reload_active_keys'
+  runner 'TokenReloader.reload_active_keys'
 end

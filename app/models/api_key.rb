@@ -67,41 +67,14 @@ class ApiKey < ActiveRecord::Base
   private
 
   def update_available_tokens_number
-    return if expired?
     return unless @available_tokens_number
-    return if @available_tokens_number.to_i == tokens.count
 
-    if @available_tokens_number.to_i > tokens.count
-      add_tokens
-    else
-      remove_tokens
-    end
-  end
-
-  def add_tokens
-    token_to_generate = @available_tokens_number.to_i - available_tokens.count
-    generate_call_tokens(token_to_generate)
-  end
-
-  def remove_tokens
-    token_to_destroy = available_tokens.count - @available_tokens_number.to_i
-    available_tokens.last(token_to_destroy).each(&:destroy)
-  end
-
-  def generate_call_tokens(count)
-    count.times do
-      token_created = false
-      until token_created
-        token = SecureRandom.hex(16)
-        token_created = tokens.create(value: token)
-      end
-    end
+    TokenReloader.new(self, force_tokens_rate: @available_tokens_number)
+                 .reload_tokens(update_reloaded_at: false)
   end
 
   def generate_initial_call_tokens
-    amount = user.role.tier.tokens_rate
-    generate_call_tokens(amount)
-    update_columns(reloaded_at: Date.today)
+    TokenReloader.new(self).reload_tokens
   end
 
   def expire_all!

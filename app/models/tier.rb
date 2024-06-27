@@ -11,14 +11,4 @@ class Tier < ApplicationRecord
   def reload_rate_period
     reload_rate_amount.send(reload_rate_unit)
   end
-
-  def self.reload_active_keys
-    ApiKey.active.each do |api_key|
-      next unless api_key.next_reload_date < Date.today
-
-      api_key.available_tokens_number = api_key.user&.role&.tier&.tokens_rate
-      api_key.reloaded_at = Date.today
-      api_key.save
-    end
-  end
 end

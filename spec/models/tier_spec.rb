@@ -26,45 +26,4 @@ RSpec.describe Tier, type: :model do
       expect(tier.reload_rate_period).to eq(1.day)
     end
   end
-
-  describe '.reload_active_keys' do
-    let!(:user) { create(:user, :with_api_key) }
-    let!(:user2) { create(:user, :with_api_key) }
-
-    before do
-      user2.api_keys.each(&:expire!)
-      user.api_keys.each { |api_key| api_key.tokens.destroy_all }
-    end
-
-    context 'when reload_period is not reached' do
-      it 'does not reload active keys' do
-        Tier.reload_active_keys
-        expect(user.active_api_keys.first.available_tokens).to be_empty
-      end
-
-      it 'does not reload expired keys' do
-        Tier.reload_active_keys
-        expect(user2.api_keys.first.expired?).to be(true)
-        expect(user2.api_keys.first.tokens.count).to eq 0
-      end
-    end
-
-    context 'when reload_period is reached' do
-      before do
-        user.api_keys.each { |api_key| api_key.update(reloaded_at: (1.month.ago - 1.day)) }
-        user2.api_keys.each { |api_key| api_key.update(reloaded_at: (1.month.ago - 1.day)) }
-      end
-
-      it 'reloads active keys ' do
-        Tier.reload_active_keys
-        expect(user.active_api_keys.first.available_tokens.count).to eq(user.role.tier.tokens_rate)
-      end
-
-      it 'does not reload expired keys' do
-        Tier.reload_active_keys
-        expect(user2.api_keys.first.expired?).to be(true)
-        expect(user2.api_keys.first.tokens.count).to eq 0
-      end
-    end
-  end
 end
