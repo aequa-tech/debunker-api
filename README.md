@@ -46,9 +46,9 @@ _NOTE: The endpoint addresses for receiving the `evaluation` and `explanations` 
   Debunker-Api-->>Debunker-Assistant: performs scrape request
   Debunker-Assistant-->>Debunker-Api: returns request id
   Debunker-Api-->>Debunker-Assistant: performs evaluation request
-  Debunker-Api-->>Debunker-Assistant: returns evaluation
+  Debunker-Assistant-->>Debunker-Api: returns evaluation
   Debunker-Api-->>Debunker-Assistant: performs explanations request (if requested)
-  Debunker-Api-->>Debunker-Assistant: returns explanations
+  Debunker-Assistant-->>Debunker-Api: returns explanations
 
   Debunker-Api-->>Endpoint evaluation: Webhook sends evaluation result
   Debunker-Api-->>Endpoint explanations: Webhook sends explanation result
