@@ -2,8 +2,7 @@
 
 class ApiKey < ActiveRecord::Base
   before_create :encode_secret
-  before_create :expire_all!
-  after_create :generate_initial_call_tokens
+  after_create :manage_keys_and_tokens_creation
   after_update :update_available_tokens_number
 
   belongs_to :user
@@ -73,11 +72,20 @@ class ApiKey < ActiveRecord::Base
                  .reload_tokens(update_reloaded_at: false)
   end
 
-  def generate_initial_call_tokens
-    TokenReloader.new(self).reload_tokens
+  def manage_keys_and_tokens_creation
+    return TokenReloader.new(self).reload_tokens if user.api_keys.count == 1
+
+    last_key = user.api_keys.active.order(created_at: :desc).last
+    available_tokens_number = last_key.available_tokens.count
+    reloaded_at = last_key.reloaded_at
+
+    TokenReloader.new(self, force_tokens_rate: available_tokens_number).reload_tokens(force_reloaded_at: reloaded_at)
+    expire_all!(except_ids: id)
   end
 
-  def expire_all!
-    self.class.where(user_id:).each(&:expire!)
+  def expire_all!(except_ids: nil)
+    return self.class.where(user_id:).each(&:expire!) if except_ids.blank?
+
+    self.class.where(user_id:).where.not(id: except_ids).each(&:expire!)
   end
 end

@@ -66,14 +66,29 @@ RSpec.describe ApiKey, type: :model do
   end
 
   describe 'create a new api key' do
-    before { api_key }
+    context 'when no previous api key exists' do
+      it 'create tokens from tier' do
+        expect(api_key.tokens.available.count).to eq(user.role.tier.tokens_rate)
+        expect(api_key.reloaded_at).to eq(Date.today)
+      end
+    end
 
-    it 'create tokens from tier' do
-      expect(api_key.tokens.available.count).to eq(user.role.tier.tokens_rate)
-      expect(api_key.reloaded_at).to eq(Date.today)
+    context 'when a previous api key exists' do
+      it 'create api key with old available tokens number and previous reloaded_at' do
+        old_api_key = create(:api_key, user:)
+        old_api_key.tokens.first(2).each(&:consume!)
+
+        old_count = old_api_key.available_tokens.count
+        old_reloaded_at = old_api_key.reloaded_at
+
+        new_api_key = create(:api_key, user:)
+        expect(new_api_key.tokens.count).to eq(old_count)
+        expect(new_api_key.reloaded_at).to eq(old_reloaded_at)
+      end
     end
 
     it 'only one active api key per user' do
+      api_key
       expect(ApiKey.where(user:).active.count).to eq(1)
       create(:api_key, user:)
       expect(ApiKey.where(user:).active.count).to eq(1)

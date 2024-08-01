@@ -24,12 +24,12 @@ class TokenReloader
     @next_reload_date = api_key.reloaded_at + @reload_rate_period if @api_key.reloaded_at.present?
   end
 
-  def reload_tokens(update_reloaded_at: true)
+  def reload_tokens(update_reloaded_at: true, force_reloaded_at: nil)
     return unless api_key_is_active
     return if update_reloaded_at && next_reload_date.present? && !next_reload_date_is_past
 
     update_available_tokens_number
-    api_key.update_columns(reloaded_at: Date.today) if update_reloaded_at
+    api_key.update_columns(reloaded_at: force_reloaded_at || Date.today) if update_reloaded_at
   end
 
   private
