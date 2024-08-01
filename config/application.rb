@@ -37,16 +37,18 @@ module DebunkerApi
     config.i18n.default_locale = :it
     config.i18n.available_locales = %i[it en]
 
-    # We are going to use the Rack::Attack middleware to throttle the requests
-    # to the API. We are going to throttle the requests to 5 requests per minute (initializers/rack_attack.rb).
-    config.middleware.use Rack::Attack
-    # We are going to add the ResponseHeaders middleware to add the Content-Length and RateLimit headers to responses
-    # and remove all headers except Content-Type (lib/debunker_assistant/v1/middleware/response_headers.rb).
-    # it is important to add this middleware before the ActionDispatch::HostAuthorization middleware to avoid
-    # other headers being added after this middleware.
-    config.middleware.insert_before(
-      ActionDispatch::HostAuthorization,
-      DebunkerAssistant::V1::Middleware::ResponseHeaders
-    )
+    unless Rails.env.development?
+      # We are going to use the Rack::Attack middleware to throttle the requests
+      # to the API. We are going to throttle the requests to 5 requests per minute (initializers/rack_attack.rb).
+      config.middleware.use Rack::Attack
+      # We are going to add the ResponseHeaders middleware to add the Content-Length and RateLimit headers to responses
+      # and remove all headers except Content-Type (lib/debunker_assistant/v1/middleware/response_headers.rb).
+      # it is important to add this middleware before the ActionDispatch::HostAuthorization middleware to avoid
+      # other headers being added after this middleware.
+      config.middleware.insert_before(
+        ActionDispatch::HostAuthorization,
+        DebunkerAssistant::V1::Middleware::ResponseHeaders
+      )
+    end
   end
 end
