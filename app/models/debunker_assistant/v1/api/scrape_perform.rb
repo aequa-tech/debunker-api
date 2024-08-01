@@ -48,7 +48,8 @@ module DebunkerAssistant
         def llm_evaluation
           return if must_skip_analysis?(:evaluation)
 
-          response = get_call([@base_path, 'evaluation'].join('/').gsub('//', '/') + "?#{evaluation_params(@request_id)}")
+          response = get_call([@base_path, 'evaluation'].join('/').gsub('//',
+                                                                        '/') + "?#{evaluation_params(@request_id)}")
           payload = parse_json(response.body)
 
           return store_fail(:evaluation, payload, response.code) unless payload.is_a?(Hash)
@@ -80,7 +81,7 @@ module DebunkerAssistant
 
             response = get_call([@base_path, 'explanations'].join('/').gsub('//', '/') +
                                 "?#{explanations_params(@support_response_object[:evaluation][:analysis_id],
-                                explanation_type)}")
+                                                        explanation_type)}")
             payload = parse_json(response.body)
 
             unless payload.is_a?(Hash)
@@ -104,6 +105,8 @@ module DebunkerAssistant
         end
 
         def must_skip_analysis?(analysis_type)
+          return true if @incoming_payload.analysis_types[analysis_type].blank?
+
           success_status?(@support_response_object[analysis_type.to_sym][:analysis_status])
         end
 
@@ -141,9 +144,16 @@ module DebunkerAssistant
           message = Rack::Utils::HTTP_STATUS_CODES[status] if message.blank?
 
           @support_response_object[:explanations][:data] ||= []
-          @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
-          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, message:, status: status.to_i }
-          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status].to_i }.max { |a, b| a <=> b }
+          @support_response_object[:explanations][:data].reject! do |explanation|
+            explanation[:explanationDim] == explanation_type
+          end
+          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, message:,
+                                                              status: status.to_i }
+          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map do |explanation|
+                                                                        explanation[:status].to_i
+                                                                      end.max do |a, b|
+            a <=> b
+          end
           @support_response_object[:explanations][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
           false
@@ -151,9 +161,16 @@ module DebunkerAssistant
 
         def store_explanations_success(explanation_type, payload)
           @support_response_object[:explanations][:data] ||= []
-          @support_response_object[:explanations][:data].reject! { |explanation| explanation[:explanationDim] == explanation_type }
-          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, data: payload, status: 200 }
-          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map { |explanation| explanation[:status].to_i }.max { |a, b| a <=> b }
+          @support_response_object[:explanations][:data].reject! do |explanation|
+            explanation[:explanationDim] == explanation_type
+          end
+          @support_response_object[:explanations][:data] << { explanationDim: explanation_type, data: payload,
+                                                              status: 200 }
+          @support_response_object[:explanations][:analysis_status] = @support_response_object[:explanations][:data].map do |explanation|
+                                                                        explanation[:status].to_i
+                                                                      end.max do |a, b|
+            a <=> b
+          end
           @support_response_object[:explanations][:callback_status] = 0
           @token.temporary_response!(@support_response_object.to_json)
           true
@@ -195,7 +212,7 @@ module DebunkerAssistant
         end
 
         def explanations_params(analysis_id, explanation_type)
-          params= ["analysis_id=#{analysis_id}"]
+          params = ["analysis_id=#{analysis_id}"]
           params << "explanation_type=#{explanation_type}"
           params.join('&')
         end
