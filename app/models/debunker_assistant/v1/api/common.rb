@@ -16,7 +16,7 @@ module DebunkerAssistant
           206
         end
 
-        def init_support_response_object(incoming_payload_object, token)
+        def init_support_response_object(_incoming_payload_object, token)
           return parse_json(token.support_response_object) if token.support_response_object.present?
 
           support_object = {}
@@ -59,7 +59,7 @@ module DebunkerAssistant
           http.use_ssl = @base_scheme == 'https'
 
           request = Net::HTTP::Post.new(parametrized_path)
-          request.basic_auth(ENV.fetch('DEBUNKER_API_USEERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
+          request.basic_auth(ENV.fetch('DEBUNKER_API_USERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
           request.body = payload.to_json if payload.present?
 
           http.request(request)
@@ -70,7 +70,7 @@ module DebunkerAssistant
           http.use_ssl = @base_scheme == 'https'
 
           request = Net::HTTP::Get.new(parametrized_path)
-          request.basic_auth(ENV.fetch('DEBUNKER_API_USEERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
+          request.basic_auth(ENV.fetch('DEBUNKER_API_USERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
 
           http.request(request)
         end

@@ -18,5 +18,4 @@
 PreCommit:
   BundleAudit:
     enabled: true
-    on_warn: fail
-    flags: ['--update']
+    command: ['bundle-audit', 'check', '--update']
