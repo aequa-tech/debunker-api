@@ -198,7 +198,7 @@ module DebunkerAssistant
         end
 
         def scrape_params
-          params = ["inputUrl=#{@incoming_payload.url}"]
+          params = ["inputUrl=#{CGI.escape(@incoming_payload.url)}"]
           params << ["language=#{@incoming_payload.content_language}"]
           params << ["retry=#{@incoming_payload.retry}"]
           params << ["maxRetries=#{@incoming_payload.max_retries}"]
