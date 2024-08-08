@@ -100,4 +100,18 @@ Rails.application.configure do
     user_name: ENV.fetch('SMTP_USERNAME'),
     password: ENV.fetch('SMTP_PASSWORD')
   }
+
+  # Lograge
+  config.lograge.enabled = true
+  config.lograge.keep_original_rails_log = true
+  config.lograge.base_controller_class = 'ActionController::API'
+  config.lograge.logger = ActiveSupport::Logger.new("#{Rails.root}/log/lograge_#{Rails.env}.log")
+  config.lograge.formatter = Lograge::Formatters::Logstash.new
+  config.lograge.custom_payload do |controller|
+    {
+      user_id: controller.current_user.try(:id),
+      request_id: controller.request.uuid,
+      app: Rails.app_class.module_parent_name
+    }
+  end
 end
