@@ -25,7 +25,10 @@ module DebunkerAssistant
 
         def authenticate!
           result = DebunkerAssistant::V1::ApiAuthenticator::Organizer.call(request:)
-          return if result.success?
+          if result.success?
+            Current.user = result.current_user
+            return
+          end
 
           render json: { message: result.message }, status: result.status
         end

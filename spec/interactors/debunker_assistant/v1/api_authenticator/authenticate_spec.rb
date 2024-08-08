@@ -7,11 +7,17 @@ RSpec.describe ::DebunkerAssistant::V1::ApiAuthenticator::Authenticate, type: :i
     let(:context) do
       { request: double(headers: { 'X-API-Key' => 'key', 'X-API-Secret' => 'secret' }) }
     end
+    let(:result) { described_class.call(context) }
+    let(:stubbed_user) { build_stubbed(:user) }
 
-    before { allow(ApiKey).to receive(:authenticate!).and_return(true) }
+    before { allow(ApiKey).to receive(:authenticate!).and_return(stubbed_user) }
 
     it 'does not fail' do
-      expect(described_class.call(context).success?).to be_truthy
+      expect(result).to be_success
+    end
+
+    it 'puts the authenticate user in context' do
+      expect(result.current_user).to be(stubbed_user)
     end
   end
 
@@ -21,7 +27,7 @@ RSpec.describe ::DebunkerAssistant::V1::ApiAuthenticator::Authenticate, type: :i
     end
 
     it 'fails' do
-      expect(described_class.call(context).failure?).to be_truthy
+      expect(described_class.call(context)).to be_failure
       expect(described_class.call(context).message).to eq(I18n.t('api.messages.api_key.error.unauthorized'))
       expect(described_class.call(context).status).to eq(:unauthorized)
     end

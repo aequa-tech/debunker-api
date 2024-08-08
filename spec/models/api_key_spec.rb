@@ -32,16 +32,34 @@ RSpec.describe ApiKey, type: :model do
 
   describe 'authenticate!' do
     context 'when the api key is valid' do
-      it 'returns true' do
+      it 'returns the authenticated user' do
         key_pair = ApiKey.generate_key_pair
-        create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:)
-        expect(ApiKey.authenticate!(key_pair[:access_token], key_pair[:secret_token])).to be_truthy
+        api_key = create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:)
+
+        result = ApiKey.authenticate!(key_pair[:access_token], key_pair[:secret_token])
+        aggregate_failures do
+          expect(result).to be_a(User)
+          expect(result.id).to eq api_key.user.id
+        end
       end
     end
 
-    context 'when the api key is invalid' do
-      it 'returns false' do
-        expect(ApiKey.authenticate!('invalid', 'invalid')).to be_falsey
+    context 'when authentication fails' do
+      context 'when the api key is invalid' do
+        it 'returns false' do
+          expect(ApiKey.authenticate!('invalid', 'invalid')).to be false
+        end
+      end
+
+      context 'having the wrong secret' do
+        let(:key_pair) { ApiKey.generate_key_pair }
+        let!(:api_key) do
+          create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:)
+        end
+
+        it 'returns false' do
+          expect(ApiKey.authenticate!(key_pair[:access_token], 'invalid')).to be false
+        end
       end
     end
   end

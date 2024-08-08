@@ -8,7 +8,10 @@ module DebunkerAssistant
         include ::Interactor
 
         def call
-          return if ApiKey.authenticate!(context.key, context.secret)
+          if (user = ApiKey.authenticate!(context.key, context.secret))
+            context.current_user = user
+            return
+          end
 
           context.fail!(message: I18n.t('api.messages.api_key.error.unauthorized'), status: :unauthorized)
         end

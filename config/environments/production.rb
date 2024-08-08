@@ -109,7 +109,7 @@ Rails.application.configure do
   config.lograge.formatter = Lograge::Formatters::Logstash.new
   config.lograge.custom_payload do |controller|
     {
-      user_id: controller.current_user.try(:id),
+      user_id: Current.user&.id,
       request_id: controller.request.uuid,
       app: Rails.app_class.module_parent_name
     }

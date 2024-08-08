@@ -27,7 +27,7 @@ class ApiKey < ActiveRecord::Base
     return false if api_key.expired_at.present?
 
     decoded_secret = JWT.decode(api_key.secret_token, usk(access_token, api_key.user)).first
-    decoded_secret == secret
+    decoded_secret == secret ? api_key.user : false
   rescue JWT::DecodeError, JWT::VerificationError
     false
   end

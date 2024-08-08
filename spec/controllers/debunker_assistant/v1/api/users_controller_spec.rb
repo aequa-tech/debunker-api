@@ -19,7 +19,7 @@ RSpec.describe DebunkerAssistant::V1::Api::UsersController, type: :controller do
     end
 
     allow(DebunkerAssistant::V1::ApiAuthenticator::Organizer).to receive(:call) do
-      double('Interactor::Context', success?: true)
+      double('Interactor::Context', success?: true, current_user: user)
     end
 
     allow(DebunkerAssistant::V1::ParamsValidator::Organizer).to receive(:call) do

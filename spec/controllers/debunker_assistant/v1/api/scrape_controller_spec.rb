@@ -25,7 +25,7 @@ RSpec.describe DebunkerAssistant::V1::Api::ScrapeController, type: :controller d
     end
 
     allow(DebunkerAssistant::V1::ApiAuthenticator::Organizer).to receive(:call) do
-      double('Interactor::Context', success?: true)
+      double('Interactor::Context', success?: true, current_user: api_key.user)
     end
 
     allow(DebunkerAssistant::V1::ParamsValidator::Organizer).to receive(:call) do

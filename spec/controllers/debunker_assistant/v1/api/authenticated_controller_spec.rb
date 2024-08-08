@@ -18,13 +18,14 @@ RSpec.describe DebunkerAssistant::V1::Api::AuthenticatedController, type: :contr
 
   describe 'GET #index' do
     context 'when the request is valid' do
+      let(:current_user) { build_stubbed(:user) }
       before do
         allow(DebunkerAssistant::V1::ParamsValidator::AcceptLanguage).to receive(:call) do
           double('Interactor::Context', success?: true)
         end
 
         allow(DebunkerAssistant::V1::ApiAuthenticator::Organizer).to receive(:call) do
-          double('Interactor::Context', success?: true)
+          double('Interactor::Context', success?: true, current_user:)
         end
         get :index
       end

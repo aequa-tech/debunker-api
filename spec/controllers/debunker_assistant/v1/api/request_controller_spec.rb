@@ -15,9 +15,10 @@ RSpec.describe DebunkerAssistant::V1::Api::RequestController, type: :controller 
   end
 
   describe 'GET #index' do
+    let(:current_user) { build_stubbed(:user) }
     before do
       allow(DebunkerAssistant::V1::ApiAuthenticator::Organizer).to receive(:call) do
-        double('Interactor::Context', success?: true)
+        double('Interactor::Context', success?: true, current_user:)
       end
     end
 
