@@ -51,6 +51,7 @@ module DebunkerAssistant
 
         def response_payload(type)
           {
+            token_id: @token.value,
             url: @incoming_payload.url,
             analysisType: type.to_s,
             data: @support_response_object[type][:data]

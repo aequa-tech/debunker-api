@@ -59,7 +59,9 @@ module DebunkerAssistant
           http.use_ssl = @base_scheme == 'https'
 
           request = Net::HTTP::Post.new(parametrized_path)
-          request.basic_auth(ENV.fetch('DEBUNKER_API_USERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
+          if (ENV.fetch('DEBUNKER_API_USERNAME', nil) && ENV.fetch('DEBUNKER_API_PASSWORD', nil)).present?
+            request.basic_auth(ENV.fetch('DEBUNKER_API_USERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
+          end
           request.body = payload.to_json if payload.present?
 
           http.request(request)
@@ -70,7 +72,9 @@ module DebunkerAssistant
           http.use_ssl = @base_scheme == 'https'
 
           request = Net::HTTP::Get.new(parametrized_path)
-          request.basic_auth(ENV.fetch('DEBUNKER_API_USERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
+          if (ENV.fetch('DEBUNKER_API_USERNAME', nil) && ENV.fetch('DEBUNKER_API_PASSWORD', nil)).present?
+            request.basic_auth(ENV.fetch('DEBUNKER_API_USERNAME'), ENV.fetch('DEBUNKER_API_PASSWORD'))
+          end
 
           http.request(request)
         end

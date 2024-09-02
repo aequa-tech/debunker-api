@@ -4,10 +4,11 @@ require 'rails_helper'
 
 RSpec.describe DebunkerAssistant::V1::Api::ScrapeController, type: :controller do
   let(:api_key) { create(:api_key) }
-  let(:token) { create(:token, api_key:) }
+  let!(:token) { create(:token, api_key:) }
 
   let(:expected_success_response) do
     {
+      token_id: api_key.available_tokens.first.value,
       message: I18n.t('api.messages.scrape.queued'),
       url: 'http://example.com'
     }
@@ -37,7 +38,7 @@ RSpec.describe DebunkerAssistant::V1::Api::ScrapeController, type: :controller d
     context 'when ScrapeQueuer::Organizer returns success' do
       before do
         allow(DebunkerAssistant::V1::ScrapeQueuer::Organizer).to receive(:call) do
-          double('Interactor::Context', success?: true, url: 'http://example.com', token:)
+          double('Interactor::Context', success?: true, url: 'http://example.com', token_value: token.value)
         end
       end
 

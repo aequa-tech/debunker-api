@@ -6,7 +6,9 @@ RSpec.describe 'Scrape API', type: :request do
   let(:api_path) { '/api/v1/users/status' }
   let!(:user) { create(:user, :confirmed) }
   let!(:key_pair) { ApiKey.generate_key_pair }
-  let!(:api_key) { create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:) }
+  let!(:api_key) do
+    create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:)
+  end
 
   let(:valid_payload) do
     {
@@ -38,7 +40,7 @@ RSpec.describe 'Scrape API', type: :request do
       end
 
       it 'structure of the response is right' do
-        expect(json.keys).to match_array(%w[message url])
+        expect(json.keys).to match_array(%w[token_id message url])
       end
 
       it 'response headers are right' do

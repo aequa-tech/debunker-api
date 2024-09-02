@@ -27,6 +27,6 @@ class Token < ApplicationRecord
   end
 
   def consume!
-    destroy!
+    # destroy!
   end
 end

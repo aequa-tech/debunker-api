@@ -5,7 +5,9 @@ require 'rails_helper'
 RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
   let!(:user) { create(:user, :confirmed) }
   let!(:key_pair) { ApiKey.generate_key_pair }
-  let!(:api_key) { create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user: user) }
+  let!(:api_key) do
+    create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:)
+  end
   let(:token_value) { api_key.available_tokens.first.value }
 
   let(:token) { Token.find_by(value: token_value) }
@@ -120,7 +122,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
             'absolute' => '',
             'local' => '',
             'global' => ''
-          },
+          }
         },
         'repeatedLetters' => {
           'title' => {
@@ -412,7 +414,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('evaluation')
         expect(payload[:data].is_a?(Hash)).to be_truthy
@@ -437,7 +440,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('explanations')
         expect(payload[:data].is_a?(Array)).to be_truthy
@@ -454,11 +458,13 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
           when 'explanationAffective'
             expect(explanation.keys).to match_array(%i[explanationDim data status])
             puts "\n\n###### EXPLANATION AFFECTIVE PAYLOAD ######"
-            expect(response_expetation(explanation[:data].deep_stringify_keys, explanation_affective_structure)).to be_truthy
+            expect(response_expetation(explanation[:data].deep_stringify_keys,
+                                       explanation_affective_structure)).to be_truthy
           when 'explanationDanger'
             expect(explanation.keys).to match_array(%i[explanationDim data status])
             puts "\n\n###### EXPLANATION DANGER PAYLOAD ######"
-            expect(response_expetation(explanation[:data].deep_stringify_keys, explanation_danger_structure)).to be_truthy
+            expect(response_expetation(explanation[:data].deep_stringify_keys,
+                                       explanation_danger_structure)).to be_truthy
           when 'explanationNetworkAnalysis'
             expect(explanation.keys).to match_array(%i[explanationDim message status])
           end
@@ -482,7 +488,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('evaluation')
         expect(payload[:data].is_a?(Hash)).to be_truthy
@@ -508,7 +515,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('explanations')
         expect(payload[:data].is_a?(Array)).to be_truthy
@@ -545,7 +553,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('evaluation')
         expect(payload[:data].is_a?(Hash)).to be_truthy
@@ -571,7 +580,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('explanations')
         expect(payload[:data].is_a?(Array)).to be_truthy
@@ -611,7 +621,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('evaluation')
         expect(payload[:data].is_a?(Hash)).to be_truthy
@@ -628,7 +639,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('explanations')
         expect(payload[:data].is_a?(Array)).to be_truthy
@@ -677,7 +689,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('evaluation')
         expect(payload[:data].is_a?(Hash)).to be_truthy
@@ -694,7 +707,8 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
         payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
-        expect(payload.keys).to match_array(%i[url analysisType data])
+        expect(payload.keys).to match_array(%i[token_id url analysisType data])
+        expect(payload[:token_id]).to eq(token.value)
         expect(payload[:url]).to eq(valid_payload[:url])
         expect(payload[:analysisType]).to eq('explanations')
         expect(payload[:data].is_a?(Array)).to be_truthy
