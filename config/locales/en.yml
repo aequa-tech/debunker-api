@@ -18,6 +18,8 @@ en:
           protocol: "The provided link must start with http:// or https://"
           evaluation: "Error during content analysis"
       api_key:
+        expired: "API Key has expired"
+        destroyed: "API Key has been deleted"
         error:
           missings: "Missing Api / Secret keys"
           too_many_requests: "Too many requests made with this API key or IP address"
@@ -25,6 +27,12 @@ en:
       locale:
         error:
           invalid: "Unsupported language"
+      user:
+        destroyed: "User has been deleted"
+      role:
+        destroyed: "Role has been deleted"
+      tier:
+        destroyed: "Tier has been deleted"
 
   activemodel:
     errors:
@@ -51,6 +59,7 @@ en:
   activerecord:
     errors:
       messages:
+        taken: "has already been taken"
         record_invalid: "Record is invalid"
     models:
       user:

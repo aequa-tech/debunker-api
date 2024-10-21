@@ -18,13 +18,21 @@ it:
           protocol: "Il link fornito deve iniziare con http:// o https://"
           evaluation: "Errore durante l'analisi del contenuto"
       api_key:
+        expired: "La chiave API è scaduta"
+        destroyed: "La chiave API è stata eliminata"
         error:
-          missings: "Chiavi Api / Secret mancanti"
+          missings: "Chiavi API / Secret mancanti"
           too_many_requests: "Troppe richieste effettuate con questa chiave API o indirizzo IP"
           unauthorized: "Chiave API non valida"
       locale:
         error:
           invalid: "Lingua non supportata"
+      user:
+        destroyed: "Utente eliminato"
+      role:
+        destroyed: "Ruolo eliminato"
+      tier:
+        destroyed: "Piano eliminato"
 
   activemodel:
     errors:
@@ -51,7 +59,8 @@ it:
   activerecord:
     errors:
       messages:
-        record_invalid: "Il record non è valido"
+        taken: "esiste già"
+        record_invalid: "il record non è valido"
     models:
       user:
         one: "Utente"

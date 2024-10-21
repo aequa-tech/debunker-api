@@ -15,6 +15,16 @@ module DebunkerAssistant
 
           render json: { message: result.message }, status: result.status
         end
+
+        def api_key
+          @api_key ||= ApiKey.find_by(access_token: request.headers['X-API-Key'])
+        end
+
+        def ensure_admin
+          return if api_key.user.admin?
+
+          render json: { message: I18n.t('api.messages.api_key.error.unauthorized') }, status: :unauthorized
+        end
       end
     end
   end
