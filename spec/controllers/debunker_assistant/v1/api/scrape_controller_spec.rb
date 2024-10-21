@@ -37,6 +37,8 @@ RSpec.describe DebunkerAssistant::V1::Api::ScrapeController, type: :controller d
   describe 'POST #create' do
     context 'when ScrapeQueuer::Organizer returns success' do
       before do
+        token.update(payload_json: { url: 'http://example.com' }.to_json)
+
         allow(DebunkerAssistant::V1::ScrapeQueuer::Organizer).to receive(:call) do
           double('Interactor::Context', success?: true, url: 'http://example.com', token_value: token.value)
         end

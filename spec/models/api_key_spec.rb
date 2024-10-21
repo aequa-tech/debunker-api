@@ -94,7 +94,7 @@ RSpec.describe ApiKey, type: :model do
     context 'when a previous api key exists' do
       it 'create api key with old available tokens number and previous reloaded_at' do
         old_api_key = create(:api_key, user:)
-        old_api_key.tokens.first(2).each(&:consume!)
+        old_api_key.tokens.first(2).each(&:finish!)
 
         old_count = old_api_key.available_tokens.count
         old_reloaded_at = old_api_key.reloaded_at

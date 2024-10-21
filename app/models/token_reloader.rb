@@ -1,75 +1,83 @@
 # frozen_string_literal: true
 
 class TokenReloader
-  include ActiveModel::Model
-
-  attr_accessor :api_key, :user, :tier, :reload_rate_period, :tokens_rate, :next_reload_date
-
-  validates :api_key, :user, :tier, presence: true
-
-  def self.reload_active_keys
-    ApiKey.active.each { |api_key| new(api_key).reload_tokens }
+  class << self
+    # Method called by scheduler
+    def reload_active_keys
+      ApiKey.active.each do |api_key|
+        new(api_key).reload_tokens
+        api_key.update_reload_date(date: Date.today)
+      end
+    end
   end
 
-  def initialize(api_key = nil, force_tokens_rate: nil)
+  def initialize(api_key)
     @api_key = api_key
-    @user = api_key&.user
+    @user = @api_key&.user
     @tier = @user&.role&.tier
+    return unless valid?
 
-    return unless @api_key.present?
-    return unless @tier.present?
-
-    @reload_rate_period = @tier.reload_rate_period
-    @tokens_rate = force_tokens_rate.present? ? force_tokens_rate.to_i : @tier.tokens_rate.to_i
-    @next_reload_date = api_key.reloaded_at + @reload_rate_period if @api_key.reloaded_at.present?
+    @tokens_rate = @tier.tokens_rate.to_i
+    @next_reload_date = @api_key.next_reload_date if @api_key.reloaded_at.present?
   end
 
-  def reload_tokens(update_reloaded_at: true, force_reloaded_at: nil)
-    return unless api_key_is_active
-    return if update_reloaded_at && next_reload_date.present? && !next_reload_date_is_past
+  def reload_tokens
+    return unless can_execute_operation?
+    return unless next_reload_date_is_past
 
-    update_available_tokens_number
-    api_key.update_columns(reloaded_at: force_reloaded_at || Date.today) if update_reloaded_at
+    adjust_available_tokens
+  end
+
+  def regenerate_single_token
+    return unless can_execute_operation?
+
+    generate_call_tokens(1)
   end
 
   private
 
-  def api_key_is_active
-    api_key.expired? ? false : true
+  def valid?
+    @api_key.present? && @user.present? && @tier.present?
+  end
+
+  def can_execute_operation?
+    valid? && @next_reload_date.present? && @tokens_rate.present?
   end
 
   def next_reload_date_is_past
-    @next_reload_date.present? && @next_reload_date < Date.today ? true : false
+    (Date.today - @next_reload_date.to_date).to_i >= 0
   end
 
-  def update_available_tokens_number
-    return unless tokens_rate.present?
+  def adjust_available_tokens
+    return if @tokens_rate == @api_key.available_tokens.count
 
-    current_tokens = api_key.tokens.count
-    return if tokens_rate == current_tokens
-
-    if tokens_rate > current_tokens
-      add_tokens(tokens_rate - current_tokens)
+    if @tokens_rate > @api_key.available_tokens.count
+      add_tokens(@tokens_rate - @api_key.available_tokens.count)
     else
-      remove_tokens(current_tokens - tokens_rate)
+      remove_tokens(@api_key.available_tokens.count - @tokens_rate)
     end
   end
 
-  def add_tokens(tokens_to_generate)
-    generate_call_tokens(tokens_to_generate)
+  def add_tokens(amount)
+    generate_call_tokens(amount)
   end
 
-  def remove_tokens(tokens_to_destroy)
-    available_tokens.last(tokens_to_destroy).each(&:destroy)
+  def remove_tokens(amount)
+    @api_key.available_tokens.last(amount).each(&:destroy)
   end
 
-  def generate_call_tokens(count)
-    count.times do
-      token_created = false
-      until token_created
-        token = SecureRandom.hex(16)
-        token_created = api_key.tokens.create(value: token)
-      end
+  def generate_call_tokens(amount)
+    amount.times do
+      @api_key.reload
+      create_token_with_unique_value if @api_key.can_accept_new_token?
+    end
+  end
+
+  def create_token_with_unique_value
+    token_created = false
+    until token_created
+      token = @api_key.tokens.create(value: SecureRandom.hex(16))
+      token_created = token.valid? && token.persisted?
     end
   end
 end

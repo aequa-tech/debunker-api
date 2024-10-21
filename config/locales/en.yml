@@ -3,6 +3,7 @@ en:
     messages:
       errors:
         errno/econnrefused: "The service is not available"
+        net/read_timeout: "The service did not respond in time"
         fatal: "A fatal error occurred."
         json/parser_error: "Invalid JSON"
         rest_client/exception_with_response: "The service responded with an error"
@@ -68,17 +69,15 @@ en:
         expired_at: "Revoked at"
         created_at: "Created at"
       user:
-        name: "Name"
+        first_name: "Name"
+        last_name: "Surname"
         email: "Email"
-        password: "Password"
-        password_confirmation: "Password Confirmation"
-        confirmed_at: "Activated at"
         created_at: "Created at"
         updated_at: "Updated at"
       token:
         user: "User"
         value: "Value"
         api_key: "API Key"
-        support_response_object: "Last payload"
+        response_json: "Last payload"
         success: "Positive outcome"
         used_on: "Used for address"

@@ -3,6 +3,7 @@ it:
     messages:
       errors:
         errno/econnrefused: "Il servizio non è disponibile"
+        net/read_timeout: "Il servizio non ha risposto in tempo"
         fatal: "Si è verificato un errore fatale."
         json/parser_error: "JSON non valido"
         rest_client/exception_with_response: "Il servizio ha risposto con un errore"
@@ -68,10 +69,9 @@ it:
         expired_at: "Revocata il"
         created_at: "Creato il"
       user:
-        name: "Nome"
+        first_name: "Nome"
+        last_name: "Cognome"
         email: "Email"
-        password: "Password"
-        password_confirmation: "Conferma Password"
         confirmed_at: "Attivato il"
         created_at: "Creato il"
         updated_at: "Aggiornato il"

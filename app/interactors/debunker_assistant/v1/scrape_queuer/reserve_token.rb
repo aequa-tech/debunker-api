@@ -10,7 +10,7 @@ module DebunkerAssistant
         before :prepare_context
 
         def call
-          return context.token.occupy!(context.url) if valid_token?
+          return context.token.occupy!(context.parsed_payload) if valid_token?
 
           context.fail!(message: I18n.t('api.messages.token.error.invalid'), status: :internal_server_error)
         end
@@ -18,7 +18,8 @@ module DebunkerAssistant
         private
 
         def prepare_context
-          context.url = ::DebunkerAssistant::V1::Api::ScrapePayload.new(context.payload).url
+          context.parsed_payload = ::DebunkerAssistant::V1::Api::ScrapePayload.new(context.payload)
+          context.url = context.parsed_payload.url
           context.token = Token.find_by(value: context.token_value)
         end
 

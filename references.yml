@@ -3,9 +3,7 @@ openapi: "3.1.0"
 info:
   version: "0.2.0"
 
-  title: test.test
-
-  termsOfService: 'https://test.test/terms/'
+  title: Debunker Assistant API
 
   contact:
     email: info@aequa-tech.com
@@ -21,15 +19,12 @@ info:
   description: |
     Debunker Api description
 
-servers:
-  - url: "https://test.test/api/v1"
-
 externalDocs:
   description: Find the full documentation
   url: 'ourexternaldoc.org'
 
 paths:
-  /users/status:
+  /user/status:
     get:
       security:
         - apiKey: []
@@ -384,6 +379,9 @@ components:
 
     requestResponse:
       properties:
+        token_id:
+          description: ID of the request
+          type: string
         message:
           description: A message that describe the response
           $ref: '#/components/schemas/errorMessage'

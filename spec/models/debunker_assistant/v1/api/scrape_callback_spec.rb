@@ -11,7 +11,7 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
   let(:token_value) { api_key.available_tokens.first.value }
 
   let(:token) { Token.find_by(value: token_value) }
-  let(:support_response_object) { JSON.parse(token.support_response_object) }
+  let(:response_json) { JSON.parse(token.response_json) }
   let(:valid_payload) do
     {
       url: 'https://www.google.com',
@@ -407,12 +407,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when evaluation' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -423,22 +425,24 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'evaluation data corresponds to openapi schema' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         puts "\n\n###### EVALUTATION PAYLOAD ######"
         expect(response_expetation(payload[:data].deep_stringify_keys, evaluation_structure)).to be_truthy
       end
     end
 
     context 'when explanations' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -449,10 +453,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'explanations data corresponds to openapi schema' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         payload[:data].each do |explanation|
           case explanation[:explanationDim]
           when 'explanationAffective'
@@ -481,12 +485,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when evaluation' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -497,10 +503,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'evaluation is message with status' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         expect(payload[:data].keys).to match_array(%i[message status])
         expect(payload[:data][:message]).to be_present
         expect(payload[:data][:status]).not_to eq 200
@@ -508,12 +514,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when explanations' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -524,10 +532,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'explanations is message with status' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         payload[:data].each do |explanation|
           expect(explanation.keys).to match_array(%i[explanationDim message status])
           expect(explanation[:message]).to be_present
@@ -546,12 +554,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when evaluation' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -562,10 +572,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'evaluation is message with status' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         expect(payload[:data].keys).to match_array(%i[message status])
         expect(payload[:data][:message]).to be_present
         expect(payload[:data][:status]).not_to eq 200
@@ -573,12 +583,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when explanations' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -589,10 +601,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'explanations is message with status' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         payload[:data].each do |explanation|
           expect(explanation.keys).to match_array(%i[explanationDim message status])
           expect(explanation[:message]).to be_present
@@ -614,12 +626,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when evaluation' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -632,12 +646,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when explanations' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -648,10 +664,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'explanations is message with status' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         payload[:data].each do |explanation|
           case explanation[:explanationDim]
           when 'explanationAffective'
@@ -682,12 +698,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when evaluation' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:evaluation)
+        payload = described_class.new(token_value).check_callback_payload(:evaluation)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -700,12 +718,14 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
     end
 
     context 'when explanations' do
+      before { token.update(payload_json: valid_payload.to_json) }
+
       it 'payload is correct' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         expect(payload.is_a?(Hash)).to be_truthy
         expect(payload.keys).to match_array(%i[token_id url analysisType data])
         expect(payload[:token_id]).to eq(token.value)
@@ -716,10 +736,10 @@ RSpec.describe ::DebunkerAssistant::V1::Api::ScrapeCallback, type: :model do
 
       it 'explanations is message with status' do
         VCR.use_cassettes cassettes do
-          ::DebunkerAssistant::V1::Api::ScrapePerform.new(valid_payload.to_json, token_value).scrape
+          ::DebunkerAssistant::V1::Api::ScrapePerform.new(token_value).scrape
         end
 
-        payload = described_class.new(valid_payload.to_json, token_value).check_callback_payload(:explanations)
+        payload = described_class.new(token_value).check_callback_payload(:explanations)
         payload[:data].each do |explanation|
           case explanation[:explanationDim]
           when 'explanationAffective'

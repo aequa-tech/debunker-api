@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe ::DebunkerAssistant::V1::ScrapeQueuer::EnqueueJob, type: :interactor do
   context 'when the job is enqueued' do
-    let(:token) { create(:token) }
-    let(:context) { { token_value: token.value, payload: { url: 'https://website.com' }.to_json } }
+    let(:token) { create(:token, payload_json: { url: 'https://website.com' }.to_json) }
+    let(:context) { { token_value: token.value } }
 
     it 'does not fail' do
       expect(described_class.call(context).success?).to be_truthy
@@ -13,13 +13,13 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeQueuer::EnqueueJob, type: :interac
 
     it 'enqueues the job' do
       described_class.call(context)
-      expect(::DebunkerAssistant::V1::Jobs::ScrapeJob).to have_enqueued_sidekiq_job(context[:payload], token.value)
+      expect(::DebunkerAssistant::V1::Jobs::ScrapeJob).to have_enqueued_sidekiq_job(token.value)
     end
   end
 
   context 'when the job is not enqueued' do
-    let(:token) { create(:token) }
-    let(:context) { { token_value: token.value, payload: { url: 'https://example.com' }.to_json } }
+    let(:token) { create(:token, payload_json: { url: 'https://example.com' }.to_json) }
+    let(:context) { { token_value: token.value } }
 
     before { allow(::DebunkerAssistant::V1::Jobs::ScrapeJob).to receive(:perform_async).and_raise(StandardError) }
 
@@ -31,7 +31,7 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeQueuer::EnqueueJob, type: :interac
 
     it 'does not enqueue the job' do
       described_class.call(context)
-      expect(::DebunkerAssistant::V1::Jobs::ScrapeJob).not_to have_enqueued_sidekiq_job(context[:payload], token.value)
+      expect(::DebunkerAssistant::V1::Jobs::ScrapeJob).not_to have_enqueued_sidekiq_job(token.value)
     end
   end
 end

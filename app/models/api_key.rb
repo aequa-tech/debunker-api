@@ -2,13 +2,10 @@
 
 class ApiKey < ActiveRecord::Base
   before_create :encode_secret
-  after_create :manage_keys_and_tokens_creation
-  after_update :update_available_tokens_number
+  after_commit :manage_keys_and_tokens_creation, on: :create
 
   belongs_to :user
   has_many :tokens, dependent: :destroy
-
-  attr_writer :available_tokens_number
 
   validates :access_token, presence: true, uniqueness: true
   validates :secret_token, presence: true
@@ -16,38 +13,33 @@ class ApiKey < ActiveRecord::Base
 
   scope :active, -> { where(expired_at: nil) }
 
-  def self.usk(access_token, user)
-    "#{access_token}%#{user.email}"
-  end
+  class << self
+    def usk(access_token, user)
+      "#{access_token}%#{user.email}"
+    end
 
-  def self.authenticate!(access_token, secret)
-    api_key = find_by(access_token:)
-    return false if api_key.nil?
-    return false if api_key.user.blank?
-    return false if api_key.expired_at.present?
+    def authenticate!(access_token, secret)
+      api_key = find_by(access_token:)
+      return false if api_key.blank?
+      return false if api_key.user.blank?
+      return false if api_key.expired?
 
-    decoded_secret = JWT.decode(api_key.secret_token, usk(access_token, api_key.user)).first
-    decoded_secret == secret ? api_key.user : false
-  rescue JWT::DecodeError, JWT::VerificationError
-    false
-  end
+      api_key.send(:unmasked_secret) == secret ? api_key.user : false
+    rescue JWT::DecodeError, JWT::VerificationError
+      false
+    end
 
-  def self.generate_key_pair
-    { access_token: SecureRandom.hex(32), secret_token: SecureRandom.hex(32) }
-  end
-
-  def encode_secret
-    self.secret_token = JWT.encode(secret_token, ApiKey.usk(access_token, user))
-    tokens.destroy_all
+    def generate_key_pair
+      { access_token: SecureRandom.hex(32), secret_token: SecureRandom.hex(32) }
+    end
   end
 
   def masked_secret
-    secret = JWT.decode(secret_token, ApiKey.usk(access_token, user)).first
-    (secret[0..8] + ('*' * 8))[0..16]
+    (unmasked_secret[0..8] + ('*' * 8))[0..16]
   end
 
   def expire!
-    update_columns(expired_at: Time.now)
+    update_columns(expired_at: Time.zone.now)
     tokens.destroy_all
   end
 
@@ -63,23 +55,38 @@ class ApiKey < ActiveRecord::Base
     reloaded_at + user.role.tier.reload_rate_period
   end
 
+  def can_accept_new_token?
+    available_tokens.count < user.role.tier.tokens_rate
+  end
+
+  def update_reload_date(date:)
+    update_columns(reloaded_at: date)
+  end
+
   private
 
-  def update_available_tokens_number
-    return unless @available_tokens_number
+  def unmasked_secret
+    JWT.decode(secret_token, ApiKey.usk(access_token, user)).first
+  end
 
-    TokenReloader.new(self, force_tokens_rate: @available_tokens_number)
-                 .reload_tokens(update_reloaded_at: false)
+  def encode_secret
+    self.secret_token = JWT.encode(secret_token, ApiKey.usk(access_token, user))
   end
 
   def manage_keys_and_tokens_creation
-    return TokenReloader.new(self).reload_tokens if user.api_keys.count == 1
+    if user.api_keys.count == 1
+      update_reload_date(date: valid_reloadable_date)
+      TokenReloader.new(self).reload_tokens
+      update_reload_date(date: Date.today)
+    else
+      last_valid_key = user.active_api_keys.order(created_at: :desc).last
+      update_reload_date(date: last_valid_key.reloaded_at || valid_reloadable_date)
 
-    last_key = user.api_keys.active.order(created_at: :desc).last
-    available_tokens_number = last_key.available_tokens.count
-    reloaded_at = last_key.reloaded_at
+      last_valid_key.available_tokens
+                    .count
+                    .times { TokenReloader.new(self).regenerate_single_token }
+    end
 
-    TokenReloader.new(self, force_tokens_rate: available_tokens_number).reload_tokens(force_reloaded_at: reloaded_at)
     expire_all!(except_ids: id)
   end
 
@@ -87,5 +94,9 @@ class ApiKey < ActiveRecord::Base
     return self.class.where(user_id:).each(&:expire!) if except_ids.blank?
 
     self.class.where(user_id:).where.not(id: except_ids).each(&:expire!)
+  end
+
+  def valid_reloadable_date
+    (Date.yesterday - user.role.tier.reload_rate_period).to_date
   end
 end

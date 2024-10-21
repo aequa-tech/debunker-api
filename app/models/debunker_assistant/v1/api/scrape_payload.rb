@@ -9,13 +9,14 @@ module DebunkerAssistant
         include ActiveModel::Model
 
         attr_accessor :url, :analysis_types, :content_language, :retry, :max_retries,
-                      :timeout, :max_chars
+                      :timeout, :max_chars, :raw
 
         validate :url_validation, :analysis_types_validation, :evaluation_or_explanations_presence,
                  :evaluation_validation, :explanations_validation, :content_language_validation,
                  :retry_validation, :max_retries_validation, :timeout_validation, :max_chars_validation
 
         def initialize(json)
+          self.raw = json
           parsed = JSON.parse(json.to_s).deep_transform_keys(&:underscore).deep_symbolize_keys
           assign_attributes(parsed)
           set_default_values

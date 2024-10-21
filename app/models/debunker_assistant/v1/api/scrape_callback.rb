@@ -6,10 +6,12 @@ module DebunkerAssistant
       class ScrapeCallback
         include Common
 
-        def initialize(payload, token_value)
+        def initialize(token_value)
           @token = Token.find_by(value: token_value)
-          @incoming_payload = ::DebunkerAssistant::V1::Api::ScrapePayload.new(payload)
-          @support_response_object = init_support_response_object(@incoming_payload, @token)
+          return unless @token
+
+          @incoming_payload = ::DebunkerAssistant::V1::Api::ScrapePayload.new(@token.payload_json)
+          @response_object = @token.response_object
         end
 
         def callback
@@ -17,7 +19,7 @@ module DebunkerAssistant
             perform_callback(type)
           end
 
-          @token.temporary_response!(@support_response_object.to_json)
+          @token.persist!(@response_object, kind: :response)
           callback_outcome
         end
 
@@ -30,23 +32,21 @@ module DebunkerAssistant
         private
 
         def perform_callback(type)
-          return if success_status?(@support_response_object[type][:callback_status])
+          return if success_status?(@response_object[type][:callback_status])
 
           response = RestClient.post(@incoming_payload.analysis_types[type][:callback_url],
                                      response_payload(type).to_json, content_type: :json, accept: :json)
-          @support_response_object[type][:callback_status] = response.code
+          @response_object[type][:callback_status] = response.code
         rescue Errno::ECONNREFUSED,
+               Net::ReadTimeout,
                RestClient::ExceptionWithResponse,
                RestClient::Exceptions::ReadTimeout,
                JSON::ParserError => e
-          @support_response_object[type][:callback_status] = e.try(:http_code) || 500
+          @response_object[type][:callback_status] = e.try(:http_code) || 500
         end
 
         def callback_outcome
-          success = @incoming_payload.analysis_types.keys.map do |analysis_type|
-            success_status?(@support_response_object[analysis_type][:callback_status])
-          end.all?
-          success ? :success : :failure
+          @token.callback_outcome
         end
 
         def response_payload(type)
@@ -54,7 +54,7 @@ module DebunkerAssistant
             token_id: @token.value,
             url: @incoming_payload.url,
             analysisType: type.to_s,
-            data: @support_response_object[type][:data]
+            data: @response_object[type][:data]
           }
         end
       end

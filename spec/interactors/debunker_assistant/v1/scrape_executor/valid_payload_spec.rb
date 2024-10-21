@@ -3,9 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::ValidPayload, type: :interactor do
-  context 'when the payload is valid' do
-    let(:context) { { payload: { url: 'https://example.com' }.to_json } }
+  let(:context) { { token_value: token.value } }
 
+  context 'when the payload is valid' do
+    let(:token) { create(:token, :occupied, payload_json: { url: 'https://example.com' }.to_json) }
     before { allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePayload).to receive(:valid?).and_return(true) }
 
     it 'does not fail' do
@@ -14,8 +15,7 @@ RSpec.describe ::DebunkerAssistant::V1::ScrapeExecutor::ValidPayload, type: :int
   end
 
   context 'when the payload is invalid' do
-    let(:context) { { payload: { url: 'invalid' }.to_json } }
-
+    let(:token) { create(:token, :occupied, payload_json: { url: 'invalid' }.to_json) }
     before { allow_any_instance_of(::DebunkerAssistant::V1::Api::ScrapePayload).to receive(:valid?).and_return(false) }
 
     it 'fails' do

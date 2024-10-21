@@ -3,10 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe 'Users Status', type: :request do
-  let(:api_path) { '/api/v1/users/status' }
+  let(:api_path) { '/api/v1/user/status' }
   let!(:user) { create(:user, :confirmed) }
   let!(:key_pair) { ApiKey.generate_key_pair }
-  let!(:api_key) { create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:) }
+  let!(:api_key) do
+    create(:api_key, access_token: key_pair[:access_token], secret_token: key_pair[:secret_token], user:)
+  end
   let(:json) { JSON.parse(response.body) }
   let(:rate_limit) { false }
 
@@ -17,7 +19,8 @@ RSpec.describe 'Users Status', type: :request do
       it 'returns the user' do
         expect(json).not_to be_empty
         expect(json['user']).not_to be_empty
-        expect(json['user']['name']).to eq(user.name)
+        expect(json['user']['first_name']).to eq(user.first_name)
+        expect(json['user']['last_name']).to eq(user.last_name)
         expect(json['user']['email']).to eq(user.email)
         expect(json['user']['role']).to eq(user.role.name)
         expect(json['available_tokens']).to eq(api_key.available_tokens.count)
@@ -25,7 +28,7 @@ RSpec.describe 'Users Status', type: :request do
 
       it 'structure of the response is right' do
         expect(json.keys).to match_array(%w[user available_tokens])
-        expect(json['user'].keys).to match_array(%w[name email role])
+        expect(json['user'].keys).to match_array(%w[first_name last_name email role])
       end
 
       it 'returns status code 200' do

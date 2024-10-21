@@ -17,12 +17,13 @@ RSpec.describe User, type: :model do
       new_user = build(:user, email: user.email)
       expect(new_user).not_to be_valid
     end
-    it { should validate_presence_of(:name) }
+    it { should validate_presence_of(:first_name) }
+    it { should validate_presence_of(:last_name) }
   end
 
   describe '#info_attributes' do
     it 'returns a hash with name, email, and role' do
-      expect(user.info_attributes.keys).to contain_exactly('name', 'email', 'role')
+      expect(user.info_attributes.keys).to contain_exactly('first_name', 'last_name', 'email', 'role')
     end
   end
 
